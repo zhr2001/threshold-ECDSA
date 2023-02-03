@@ -1,15 +1,14 @@
-#include "ECDSA.h"
+#include "../include/ECDSA.h"
 #include <assert.h>
 #include <openssl/sha.h>
 
 mpz_t* inverse_mod(mpz_t k, mpz_t p) {
-    if (k == 0) return nullptr;
-
     mpz_t temp, negOne, zero, one;
     mpz_init_set_str(negOne, "-1", 10);
     mpz_init_set_str(zero, "0", 10);
     mpz_init_set_str(one, "1", 10);
-    if (k < 0) {
+    if (mpz_cmp(k, zero)) return nullptr;
+    if (mpz_cmp(k, zero) < 0) {
         mpz_set(temp, k);
         mpz_mul(temp, temp, negOne);
         mpz_t *intermidiate = inverse_mod(temp, p);     
