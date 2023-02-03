@@ -3,10 +3,13 @@ CFLAGS = -I.
 DEPS = ../../include/ECDSA.h
 
 InverseModeTest: InverseModeTest.o ECDSA.o
-	g++ -o InverseModeTest InverseModeTest.o ECDSA.o -lgmp
+	$(CXX) -o InverseModeTest InverseModeTest.o ECDSA.o -lgmp
 
 InverseModeTest.o: $(DEPS) InverseModeTest.cpp
-	g++ -c InverseModeTest.cpp
+	$(CXX) -c -g InverseModeTest.cpp
 
 ECDSA.o: $(DEPS) ../../util/ECDSA.cpp
-	g++ -c ../../util/ECDSA.cpp
+	$(CXX) -c -g ../../util/ECDSA.cpp
+
+clean:
+	rm -rf *.o *Test
