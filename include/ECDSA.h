@@ -27,16 +27,21 @@ typedef struct EllipticCurve {
     mpz_t p, n;
     int a;
     int b;
-    point BasePoint; 
+    int h;
+    point* BasePoint; 
 } EC;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+point* createPoint(char *x, char *y);
+
+EC* createEC(char *p, char *n, point *G, int a, int b, int h);
+
 mpz_t* inverse_mod(mpz_t k, mpz_t p);
 
-int is_on_clave(const point *p, EC *curve);
+int is_on_curve(const point *p, EC *curve);
 
 point point_neg(const point *p, EC *curve);
 

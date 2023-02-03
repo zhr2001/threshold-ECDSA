@@ -1,6 +1,25 @@
 #include "../include/ECDSA.h"
 #include <assert.h>
+#include <stdlib.h>
 #include <openssl/sha.h>
+
+point* createPoint(char *x, char *y) {
+    point *p = (point*)malloc(sizeof(point));
+    mpz_init_set_str(p->x, x, 16);
+    mpz_init_set_str(p->y, y, 16);
+    return p;
+}
+
+EC* createEC(char *p, char *n, point *G, int a, int b, int h) {
+    EC *group = (EC*)malloc(sizeof(EC));
+    mpz_init_set_str(group->p, p, 16);
+    mpz_init_set_str(group->n, n, 16);
+    group->BasePoint = G;
+    group->a = a;
+    group->b = b;
+    group->h = h;
+    return group;
+}
 
 mpz_t* inverse_mod(mpz_t k, mpz_t p) {
     mpz_t *temp = new mpz_t[1], negOne, zero, one;
@@ -68,4 +87,31 @@ mpz_t* inverse_mod(mpz_t k, mpz_t p) {
     mpz_clear(quotient);
 
     return temp;
+}
+
+int is_on_curve(const point *p, EC *curve) {
+    if (p == nullptr) return 1;
+
+    mpz_t x, y, temp1, temp2;
+    mpz_init(temp1);
+    mpz_init(temp2);
+    mpz_init_set(x, p->x);
+    mpz_init_set(y, p->y);
+    mpz_perfect_power_p(x);
+    mpz_pow_ui(temp1, x, 3);
+    mpz_pow_ui(temp2, x, curve->a);
+    mpz_add(temp1, temp1, temp2);
+    mpz_add_ui(temp1, temp1, curve->b);
+    mpz_mul(temp2, p->y, p->y);
+    mpz_sub(temp1, temp2, temp1);
+    mpz_mod(temp1, temp1, curve->p);
+
+    int res = mpz_cmp_ui(temp1, 0);
+
+    mpz_clear(x);
+    mpz_clear(y);
+    mpz_clear(temp1);
+    mpz_clear(temp2);
+
+    return res == 0 ? 1 : 0;
 }
