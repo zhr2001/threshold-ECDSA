@@ -3,28 +3,31 @@
 #include <openssl/sha.h>
 
 mpz_t* inverse_mod(mpz_t k, mpz_t p) {
-    mpz_t temp, negOne, zero, one;
+    mpz_t *temp = new mpz_t[1], negOne, zero, one;
+    mpz_init(*temp);
     mpz_init_set_str(negOne, "-1", 10);
     mpz_init_set_str(zero, "0", 10);
     mpz_init_set_str(one, "1", 10);
-    if (mpz_cmp(k, zero)) return nullptr;
+    if (mpz_cmp(k, zero) == 0) return nullptr;
     if (mpz_cmp(k, zero) < 0) {
-        mpz_set(temp, k);
-        mpz_mul(temp, temp, negOne);
-        mpz_t *intermidiate = inverse_mod(temp, p);     
+        mpz_set(*temp, k);
+        mpz_mul(*temp, *temp, negOne);
+        mpz_t *intermidiate = inverse_mod(*temp, p);     
         mpz_sub(*intermidiate, p, *intermidiate);
-        mpz_clear(temp);
+        mpz_clear(*temp);
         mpz_clear(negOne);
         return intermidiate;
     }
 
     mpz_t s, olds, t, oldt, r, oldr, quotient, tempS, tempT, tempR;
-    mpz_set(s, zero);
-    mpz_set(olds, one);
-    mpz_set(t, olds);
-    mpz_set(oldt, s);
-    mpz_set(r, k);
-    mpz_set(oldr, p);
+    mpz_init(quotient); mpz_init(tempR);
+    mpz_init(tempS); mpz_init(tempT);
+    mpz_init_set_si(s, 0);
+    mpz_init_set_si(olds, 1);
+    mpz_init_set_si(t, 1);
+    mpz_init_set_si(oldt, 0);
+    mpz_init_set(r, p);
+    mpz_init_set(oldr, k);
 
     while (mpz_cmp(r, zero) > 0)
     {
@@ -44,11 +47,11 @@ mpz_t* inverse_mod(mpz_t k, mpz_t p) {
     }
 
     assert(mpz_cmp(oldr, one) == 0);
-    mpz_mul(temp, k, olds);
-    mpz_mod(temp, temp, p);
-    assert(mpz_cmp(temp, one) == 0);
+    mpz_mul(*temp, k, olds);
+    mpz_mod(*temp, *temp, p);
+    assert(mpz_cmp(*temp, one) == 0);
 
-    mpz_mod(temp, olds, p);
+    mpz_mod(*temp, olds, p);
 
     mpz_clear(zero);
     mpz_clear(one);
@@ -64,5 +67,5 @@ mpz_t* inverse_mod(mpz_t k, mpz_t p) {
     mpz_clear(tempT);
     mpz_clear(quotient);
 
-    return &temp;
+    return temp;
 }
