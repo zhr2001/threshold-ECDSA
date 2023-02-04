@@ -37,25 +37,27 @@ extern "C" {
 
 point* createPoint(char *x, char *y);
 
+point* duplicatePoint(const point *p);
+
 EC* createEC(char *p, char *n, point *G, int a, int b, int h);
 
-mpz_t* inverse_mod(mpz_t k, mpz_t p);
+mpz_t* inverse_mod(const mpz_t k, const mpz_t p);
 
-int is_on_curve(const point *p, EC *curve);
+int is_on_curve(const point *p, const EC *curve);
 
-point point_neg(const point *p, EC *curve);
+point* point_neg(const point *p, const EC *curve);
 
-point point_add(const point *a, const point *b, EC *curve);
+point* point_add(const point *a, const point *b, const EC *curve);
 
-point scalar_multi(mpz_t k, const point *a, EC *curve);
+point* scalar_multi(mpz_t k, const point *a, const EC *curve);
 
-key_pair make_keypair(EC *curve);
+key_pair* make_keypair(const EC *curve);
 
-mpz_t* hash_message(char *message, int length);
+mpz_t* hash_message(const char *message, int length);
 
-sign sign_message(mpz_t privateKey, char *message, EC *curve);
+sign* sign_message(mpz_t privateKey, const char *message, const EC *curve);
 
-int verifySignature(mpz_t publicKey, char *message, sign signature, EC *curve);
+int verifySignature(mpz_t publicKey, const char *message, const sign *signature, const EC *curve);
 
 #ifdef __cplusplus
 }

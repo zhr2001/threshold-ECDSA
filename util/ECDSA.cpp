@@ -10,6 +10,13 @@ point* createPoint(char *x, char *y) {
     return p;
 }
 
+point* duplicatePoint(const point *p) {
+    point *res = (point*)malloc(sizeof(point));
+    mpz_init_set(res->x, p->x);
+    mpz_init_set(res->y, p->y);
+    return res;
+}
+
 EC* createEC(char *p, char *n, point *G, int a, int b, int h) {
     EC *group = (EC*)malloc(sizeof(EC));
     mpz_init_set_str(group->p, p, 16);
@@ -21,7 +28,7 @@ EC* createEC(char *p, char *n, point *G, int a, int b, int h) {
     return group;
 }
 
-mpz_t* inverse_mod(mpz_t k, mpz_t p) {
+mpz_t* inverse_mod(const mpz_t k, const mpz_t p) {
     mpz_t *temp = new mpz_t[1], negOne, zero, one;
     mpz_init(*temp);
     mpz_init_set_str(negOne, "-1", 10);
@@ -89,7 +96,8 @@ mpz_t* inverse_mod(mpz_t k, mpz_t p) {
     return temp;
 }
 
-int is_on_curve(const point *p, EC *curve) {
+int is_on_curve(const point *p, const EC *curve) {
+    assert(curve != nullptr);
     if (p == nullptr) return 1;
 
     mpz_t x, y, temp1, temp2;
@@ -97,9 +105,8 @@ int is_on_curve(const point *p, EC *curve) {
     mpz_init(temp2);
     mpz_init_set(x, p->x);
     mpz_init_set(y, p->y);
-    mpz_perfect_power_p(x);
     mpz_pow_ui(temp1, x, 3);
-    mpz_pow_ui(temp2, x, curve->a);
+    mpz_mul_ui(temp2, x, curve->a);
     mpz_add(temp1, temp1, temp2);
     mpz_add_ui(temp1, temp1, curve->b);
     mpz_mul(temp2, p->y, p->y);
@@ -114,4 +121,74 @@ int is_on_curve(const point *p, EC *curve) {
     mpz_clear(temp2);
 
     return res == 0 ? 1 : 0;
+}
+
+point* point_neg(const point *p, const EC *curve) {
+    assert(is_on_curve(p, curve));
+
+    if (p == nullptr) return nullptr;
+
+    point* res = (point*)malloc(sizeof(point));
+    mpz_init_set(res->x, p->x);
+    mpz_init(res->y);
+    mpz_mul_si(res->y, p->y, -1);
+    mpz_mod(res->y, res->y, curve->p);
+
+    assert(is_on_curve(res, curve));
+
+    return res;
+}
+
+point* point_add(const point *a, const point *b, const EC *curve) {
+    assert(is_on_curve(a, curve));
+    assert(is_on_curve(b, curve));
+
+    if (a == nullptr) return duplicatePoint(b);
+    if (b == nullptr) return duplicatePoint(a);
+    
+    if (mpz_cmp(a->x, b->x) == 0 && mpz_cmp(a->y, b->y) != 0) {
+        return nullptr;
+    }
+
+    mpz_t m,x3,y3;
+    mpz_init(m);
+    mpz_init(x3);
+    mpz_init(y3);
+
+    if (mpz_cmp(a->x, b->x) == 0) {
+        mpz_mul(m, a->x, a->x);
+        mpz_mul_si(m, m, 3);
+        mpz_add_ui(m, m, curve->a);
+        mpz_mul_si(x3, a->y, 2);
+        mpz_set(x3, *(inverse_mod(x3, curve->p)));
+        mpz_mul(m, m, x3);
+    } else {
+        mpz_sub(m, a->x, b->x);
+        mpz_set(m, *(inverse_mod(m, curve->p)));
+        mpz_sub(x3, a->y, b->y);
+        mpz_mul(m, m, x3);
+    }
+
+    mpz_mul(x3, m, m);
+    mpz_sub(x3, x3, a->x);
+    mpz_sub(x3, x3, b->x);
+    mpz_sub(y3, x3, a->x);
+    mpz_mul(y3, y3, m);
+    mpz_add(y3, y3, a->y);
+    mpz_mul_si(y3, y3, -1);
+
+    mpz_mod(x3, x3, curve->p);
+    mpz_mod(y3, y3, curve->p);
+
+    point *res = (point*)malloc(sizeof(point));
+    mpz_init_set(res->x, x3);
+    mpz_init_set(res->y, y3);
+
+    mpz_clear(x3);
+    mpz_clear(y3);
+    mpz_clear(m);
+
+    assert(is_on_curve(res, curve));
+
+    return res;
 }

@@ -5,5 +5,6 @@ int main() {
     "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
     EC *group = createEC("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f", 
     "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", BP, 0, 7, 1);
-    if (is_on_curve(BP, group)) printf("Pass!\n");
+    if (is_on_curve(BP, group)) printf("Pass IS On Curve!\n");
+    point *negBP = point_neg(BP, group);
 }
