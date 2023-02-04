@@ -39,6 +39,8 @@ point* createPoint(char *x, char *y);
 
 point* duplicatePoint(const point *p);
 
+void freePoint(point *append);
+
 EC* createEC(char *p, char *n, point *G, int a, int b, int h);
 
 mpz_t* inverse_mod(const mpz_t k, const mpz_t p);

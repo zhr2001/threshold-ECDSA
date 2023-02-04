@@ -28,6 +28,13 @@ EC* createEC(char *p, char *n, point *G, int a, int b, int h) {
     return group;
 }
 
+void freePoint(point *append) {
+    assert(append != nullptr);
+    mpz_clear(append->x);
+    mpz_clear(append->y);
+    free(append);
+}
+
 mpz_t* inverse_mod(const mpz_t k, const mpz_t p) {
     mpz_t *temp = new mpz_t[1], negOne, zero, one;
     mpz_init(*temp);
@@ -190,5 +197,39 @@ point* point_add(const point *a, const point *b, const EC *curve) {
 
     assert(is_on_curve(res, curve));
 
+    return res;
+}
+
+point* scalar_multi(mpz_t k, const point *p, const EC *curve) {
+    assert(is_on_curve(p, curve));
+
+    mpz_t temp;
+    mpz_init(temp);
+    mpz_mod(temp, k, curve->n);
+    if (mpz_cmp_si(temp, 0) == 0 && p == nullptr) return nullptr;
+
+    if (mpz_cmp_si(k, 0) < 0) {
+        mpz_mul_si(temp, k, -1);
+        return scalar_multi(temp, point_neg(p, curve), curve);
+    }
+    
+    mpz_clear(temp);
+
+    point *res = nullptr;
+    point *append = duplicatePoint(p);
+
+    while (mpz_cmp_si(k, 0) > 0)
+    {
+        if (mpz_odd_p(k)) {
+            res = point_add(res, append, curve);
+        }
+
+        append = point_add(append, append, curve);
+
+        mpz_div_ui(k, k, 2);
+    }
+
+    assert(is_on_curve(res, curve));
+    
     return res;
 }
