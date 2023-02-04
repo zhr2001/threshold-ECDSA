@@ -9,7 +9,7 @@ typedef struct point {
 } point;
 
 typedef struct keyPair {
-    mpz_t publicKey;
+    point *publicKey;
     mpz_t privateKey;
 } key_pair;
 

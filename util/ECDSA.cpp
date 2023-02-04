@@ -1,6 +1,7 @@
 #include "../include/ECDSA.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <ctime>
 #include <openssl/sha.h>
 
 point* createPoint(char *x, char *y) {
@@ -213,23 +214,51 @@ point* scalar_multi(mpz_t k, const point *p, const EC *curve) {
         return scalar_multi(temp, point_neg(p, curve), curve);
     }
     
-    mpz_clear(temp);
+    mpz_set(temp, k);
 
     point *res = nullptr;
     point *append = duplicatePoint(p);
 
-    while (mpz_cmp_si(k, 0) > 0)
+    while (mpz_cmp_si(temp, 0) > 0)
     {
-        if (mpz_odd_p(k)) {
+        if (mpz_odd_p(temp)) {
             res = point_add(res, append, curve);
         }
 
         append = point_add(append, append, curve);
 
-        mpz_div_ui(k, k, 2);
+        mpz_div_ui(temp, temp, 2);
     }
+
+    mpz_clear(temp);
 
     assert(is_on_curve(res, curve));
     
     return res;
+}
+
+key_pair* make_keypair(const EC *curve) {
+    mpz_t privateKey;
+    point *publicKey = (point *)malloc(sizeof(point));
+    mpz_init(privateKey);
+    mpz_init(publicKey->x);
+    mpz_init(publicKey->y);
+
+    gmp_randstate_t state;
+    unsigned long seed = time(NULL);
+	gmp_randinit_default(state);
+	gmp_randseed_ui(state, seed);
+    
+    while (mpz_cmp_si(privateKey, 0) <= 0 || mpz_cmp(privateKey, curve->n) >= 0)
+    {
+        mpz_urandomb(privateKey, state, 256);
+    }
+
+    publicKey = scalar_multi(privateKey, curve->BasePoint, curve);
+
+    key_pair *kp = (key_pair *)malloc(sizeof(key_pair));
+    mpz_init_set(kp->privateKey, privateKey);
+    kp->publicKey = publicKey;
+    mpz_clear(privateKey);
+    return kp;
 }

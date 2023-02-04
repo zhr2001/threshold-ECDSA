@@ -7,4 +7,8 @@ int main() {
     "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", BP, 0, 7, 1);
     if (is_on_curve(BP, group)) printf("Pass IS On Curve!\n");
     point *negBP = point_neg(BP, group);
+
+    key_pair *kp = make_keypair(group);
+    gmp_printf("private->key:%Zd\n", kp->privateKey);
+    gmp_printf("publicKey: (%Zd, %Zd)\n", kp->publicKey->x, kp->publicKey->y);
 }
