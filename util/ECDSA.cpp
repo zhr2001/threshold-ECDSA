@@ -19,6 +19,7 @@ char* convertHash(const unsigned char* md, int len) {
         ret[2*i] = numberToHex(md[i] / 16);
         ret[2*i+1] = numberToHex(md[i] % 16);
     }
+    ret[2*len] = '\0';
     return ret;
 }
 
@@ -324,7 +325,7 @@ sign* sign_message(mpz_t privateKey, const char *message, const EC *curve) {
         }
         point *p = scalar_multi(k, curve->BasePoint, curve);
         mpz_mod(res->r, p->x, curve->n);
-        mpz_mul(res->s,res->r, privateKey);
+        mpz_mul(res->s, res->r, privateKey);
         mpz_add(res->s, *hash_info, res->s);
         mpz_mul(res->s, *(inverse_mod(k, curve->n)), res->s);
         mpz_mod(res->s, res->s, curve->n);
@@ -338,9 +339,11 @@ sign* sign_message(mpz_t privateKey, const char *message, const EC *curve) {
 int verifySignature(const point *publicKey, const char *message, const sign *signature, const EC *curve) {
     mpz_t *hash_info = hash_message(message, strlen(message), curve);
     mpz_t *w = inverse_mod(signature->s, curve->n);
+    
     mpz_t temp1, temp2;
     mpz_init(temp1);
     mpz_init(temp2);
+
     mpz_mul(temp1, *hash_info, *w);
     mpz_mod(temp1, temp1, curve->n);
     mpz_mul(temp2, signature->r, *w);
