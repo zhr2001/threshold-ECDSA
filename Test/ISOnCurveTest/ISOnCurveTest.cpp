@@ -1,4 +1,5 @@
 #include "../../include/ECDSA.h"
+#include <string.h>
 
 int main() {
     point *BP = createPoint("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798", 
@@ -12,6 +13,6 @@ int main() {
     gmp_printf("private->key:%Zd\n", kp->privateKey);
     gmp_printf("publicKey: (%Zd, %Zd)\n", kp->publicKey->x, kp->publicKey->y);
 
-    mpz_t *res = hash_message("Hello World", 11, group);
+    mpz_t *res = hash_message("Hello World", strlen("Hello World"), group);
     gmp_printf("hash: %Zd\n", res[0]);
 }

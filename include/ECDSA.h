@@ -59,7 +59,7 @@ mpz_t* hash_message(const char *message, int length, const EC *curve);
 
 sign* sign_message(mpz_t privateKey, const char *message, const EC *curve);
 
-int verifySignature(mpz_t publicKey, const char *message, const sign *signature, const EC *curve);
+int verifySignature(const point *publicKey, const char *message, const sign *signature, const EC *curve);
 
 #ifdef __cplusplus
 }

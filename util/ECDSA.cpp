@@ -300,3 +300,65 @@ mpz_t* hash_message(const char *message, int length, const EC *curve) {
     assert(mpz_sizeinbase(res[0], 2) <= mpz_sizeinbase(curve->n, 2));
     return res;
 }
+
+sign* sign_message(mpz_t privateKey, const char *message, const EC *curve) {
+    mpz_t *hash_info = hash_message(message, strlen(message), curve);
+
+    sign *res = (sign*)malloc(sizeof(sign));
+    mpz_init(res->r);
+    mpz_init(res->s);
+
+    mpz_t k;
+    mpz_init(k);
+
+    gmp_randstate_t state;
+    unsigned long seed = time(NULL);
+	gmp_randinit_default(state);
+	gmp_randseed_ui(state, seed);
+
+    while (mpz_cmp_si(res->r, 0) == 0 || mpz_cmp_si(res->s, 0) == 0)
+    {
+        while (mpz_cmp_si(k, 0) <= 0 || mpz_cmp(k, curve->n) >= 0)
+        {
+            mpz_urandomb(k, state, 256);
+        }
+        point *p = scalar_multi(k, curve->BasePoint, curve);
+        mpz_mod(res->r, p->x, curve->n);
+        mpz_mul(res->s,res->r, privateKey);
+        mpz_add(res->s, *hash_info, res->s);
+        mpz_mul(res->s, *(inverse_mod(k, curve->n)), res->s);
+        mpz_mod(res->s, res->s, curve->n);
+    }
+    
+    mpz_clear(k);
+
+    return res;
+}
+
+int verifySignature(const point *publicKey, const char *message, const sign *signature, const EC *curve) {
+    mpz_t *hash_info = hash_message(message, strlen(message), curve);
+    mpz_t *w = inverse_mod(signature->s, curve->n);
+    mpz_t temp1, temp2;
+    mpz_init(temp1);
+    mpz_init(temp2);
+    mpz_mul(temp1, *hash_info, *w);
+    mpz_mod(temp1, temp1, curve->n);
+    mpz_mul(temp2, signature->r, *w);
+    mpz_mod(temp2, temp2, curve->n);
+    point *res = point_add(scalar_multi(temp1, curve->BasePoint, curve), scalar_multi(temp2, publicKey, curve), curve);
+
+    mpz_mod(temp1, signature->r, curve->n);
+    mpz_mod(temp2, res->x, curve->n);
+
+    if (mpz_cmp(temp1, temp2) == 0) {
+        mpz_clear(temp1);
+        mpz_clear(temp2);
+        printf("Signature matched\n");
+        return 1;
+    } else {
+        mpz_clear(temp1);
+        mpz_clear(temp2);
+        printf("Invalid Signature\n");
+        return 0;
+    }
+}
