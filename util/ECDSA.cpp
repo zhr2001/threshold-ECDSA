@@ -1,8 +1,26 @@
 #include "../include/ECDSA.h"
+#include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <ctime>
 #include <openssl/sha.h>
+#include <openssl/crypto.h>
+
+char numberToHex(int m) {
+    assert(0<=m && m<= 15);
+    if (m >= 0 && m <= 9) return m+'0';
+    else return m-10+'a';
+}
+
+char* convertHash(const unsigned char* md, int len) {
+    char *ret = (char *)malloc(2*len*sizeof(char));
+    int i = 0;
+    for (i = 0; i < len; i++) {
+        ret[2*i] = numberToHex(md[i] / 16);
+        ret[2*i+1] = numberToHex(md[i] % 16);
+    }
+    return ret;
+}
 
 point* createPoint(char *x, char *y) {
     point *p = (point*)malloc(sizeof(point));
@@ -261,4 +279,24 @@ key_pair* make_keypair(const EC *curve) {
     kp->publicKey = publicKey;
     mpz_clear(privateKey);
     return kp;
+}
+
+mpz_t* hash_message(const char *message, int length, const EC *curve) {
+    unsigned char md[SHA512_DIGEST_LENGTH];
+    SHA512((unsigned char*)message, length, md);
+    mpz_t *res = new mpz_t[1], temp;
+    mpz_init(temp);
+    mpz_init_set_str(res[0], convertHash(md, SHA512_DIGEST_LENGTH), 16);
+    int len = mpz_sizeinbase(curve->n, 2);
+    int reslen = mpz_sizeinbase(res[0], 2);
+    if (reslen > len){
+        mpz_set_ui(temp, 2);
+        mpz_pow_ui(temp, temp, reslen-len);
+        mpz_div(res[0], res[0], temp);
+    }
+
+    mpz_clear(temp);
+
+    assert(mpz_sizeinbase(res[0], 2) <= mpz_sizeinbase(curve->n, 2));
+    return res;
 }

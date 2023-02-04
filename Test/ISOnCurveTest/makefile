@@ -3,7 +3,7 @@ CFLAGS = -I.
 DEPS = ../../include/ECDSA.h
 
 ISOnCurveTest: ISOnCurveTest.o ECDSA.o
-	$(CXX) -o ISOnCurveTest ISOnCurveTest.o ECDSA.o -lgmp
+	$(CXX) -o ISOnCurveTest ISOnCurveTest.o ECDSA.o -lgmp -lssl -lcrypto
 
 ISOnCurveTest.o: $(DEPS) ISOnCurveTest.cpp
 	$(CXX) -c -g ISOnCurveTest.cpp

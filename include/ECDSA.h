@@ -55,7 +55,7 @@ point* scalar_multi(mpz_t k, const point *a, const EC *curve);
 
 key_pair* make_keypair(const EC *curve);
 
-mpz_t* hash_message(const char *message, int length);
+mpz_t* hash_message(const char *message, int length, const EC *curve);
 
 sign* sign_message(mpz_t privateKey, const char *message, const EC *curve);
 

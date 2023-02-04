@@ -3,7 +3,7 @@ CFLAGS = -I.
 DEPS = ../../include/ECDSA.h
 
 PointAddTest: PointAddTest.o ECDSA.o
-	$(CXX) -o PointAddTest PointAddTest.o ECDSA.o -lgmp
+	$(CXX) -o PointAddTest PointAddTest.o ECDSA.o -lgmp -lssl -lcrypto
 
 PointAddTest.o: $(DEPS) PointAddTest.cpp
 	$(CXX) -c -g PointAddTest.cpp

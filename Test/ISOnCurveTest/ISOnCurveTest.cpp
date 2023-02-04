@@ -11,4 +11,7 @@ int main() {
     key_pair *kp = make_keypair(group);
     gmp_printf("private->key:%Zd\n", kp->privateKey);
     gmp_printf("publicKey: (%Zd, %Zd)\n", kp->publicKey->x, kp->publicKey->y);
+
+    mpz_t *res = hash_message("Hello World", 11, group);
+    gmp_printf("hash: %Zd\n", res[0]);
 }
