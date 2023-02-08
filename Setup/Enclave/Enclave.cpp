@@ -32,10 +32,10 @@
 
 // Enclave1.cpp : Defines the exported functions for the .so application
 #include "sgx_eid.h"
-#include "Enclave1_t.h"
+#include "Enclave_t.h"
 #include "EnclaveMessageExchange.h"
 #include "error_codes.h"
-#include "Utility_E1.h"
+#include "Utility.h"
 #include "sgx_thread.h"
 #include "sgx_dh.h"
 #include <map>
