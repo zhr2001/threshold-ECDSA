@@ -1,7 +1,7 @@
 #ifndef _ECDSA_H_
 #define _ECDSA_H_
 
-#include "gmp.h"
+#include <gmp.h>
 
 typedef struct point {
     mpz_t x;
