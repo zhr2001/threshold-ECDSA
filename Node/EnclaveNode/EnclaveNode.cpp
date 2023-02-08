@@ -29,20 +29,26 @@
  *
  */
 
-#ifndef _ENCLAVE_H_
-#define _ENCLAVE_H_
+#include <stdarg.h>
+#include <stdio.h>      /* vsnprintf */
+#include <gmp.h>
 
-#include <stdlib.h>
-#include <assert.h>
+#include "Enclave.h"
+#include "Enclave_t.h"  /* print_string */
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+mpz_t private_key_share, ai, bi, ci, ki;
 
-
-
-#if defined(__cplusplus)
+/* 
+ * printf: 
+ *   Invokes OCALL to display the enclave buffer to the terminal.
+ */
+int printf(const char *fmt, ...)
+{
+    char buf[BUFSIZ] = {'\0'};
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(buf, BUFSIZ, fmt, ap);
+    va_end(ap);
+    ocall_print_string(buf);
+    return 0;
 }
-#endif
-
-#endif /* !_ENCLAVE_H_ */
