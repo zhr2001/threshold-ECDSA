@@ -84,7 +84,8 @@ int _tmain(int argc, TCHAR* argv[]) {
         int shmid = shmget(key, 1024, 0666|IPC_CREAT);
         char *str = (char*)shmat(shmid, (void*)0, 0);
         printf("[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1\n");
-        str = mpz_get_str(nullptr, 16, ss->keyPartitions[i]);
+        char *S = mpz_get_str(nullptr, 16, ss->keyPartitions[i]);
+        strncpy(str, S, strlen(S));
         printf("Secret sharing: %s\n", str);
         shmdt(str);
         printf("[START] Testing create session between SetUp Enclave and Node Enclave\n");

@@ -88,15 +88,12 @@ int _tmain(int argc, _TCHAR* argv[])
         printf("\nLoad Enclave Failure");
     }
 
-    //printf("\nAvailable Enclaves");
-    //printf("\nEnclave1 - EnclaveID %" PRIx64 "\n", e1_enclave_id);
-
     // shared memory between Enlave1 and Enclave2 to pass data
     key_t key = ftok("../..", 1);
     int shmid = shmget(key, 1024, 0666 | IPC_CREAT);
     char *str = (char*)shmat(shmid, (void*)0, 0);
 
-    printf("[TEST IPC] Receiving from Enclave1: %s", str);
+    printf("[TEST IPC] Receiving from Enclave1: %s\n", str);
 
     shmdt(str);
     shmctl(shmid, IPC_RMID, NULL);
