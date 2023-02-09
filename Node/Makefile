@@ -71,16 +71,16 @@ endif
 ######## Library Settings ########
 
 Trust_Lib_Name := libLocalAttestation_Trusted.a
-TrustLib_Cpp_Files := $(wildcard ../util/*.cpp)
+TrustLib_Cpp_Files := $(wildcard ./TrustedUtil/*.cpp)
 TrustLib_Cpp_Objects := $(TrustLib_Cpp_Files:.cpp=.o)
 TrustLib_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/libcxx -I$(SGX_SDK)/include/epid -I../include -I$(SGX_SSL)/include
 TrustLib_Compile_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector  $(TrustLib_Include_Paths)
 TrustLib_Compile_Cxx_Flags :=  -std=c++11 -nostdinc++
 
 UnTrustLib_Name := libLocalAttestation_unTrusted.a
-UnTrustLib_Cpp_Files := $(wildcard ../untrustedUtil/*.cpp)
+UnTrustLib_Cpp_Files := $(wildcard ../untrustedUtil/*.cpp) $(wildcard ./UntrustedUtil/*.cpp)
 UnTrustLib_Cpp_Objects := $(UnTrustLib_Cpp_Files:.cpp=.o)
-UnTrustLib_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/ippcp -I../include -I$(SGX_SSL)/include -I../util
+UnTrustLib_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/ippcp -I../include -I$(SGX_SSL)/include -I./TrustedUtil
 UnTrustLib_Compile_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes -std=c++11 $(UnTrustLib_Include_Paths)
 
 ######## App Settings ########
@@ -92,7 +92,7 @@ else
 endif
 
 App_Cpp_Files := $(wildcard App/*.cpp)
-App_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/ippcp -I../include -I../util
+App_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/ippcp -I../include -I./TrustedUtil
 
 App_Compile_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 # Three configuration modes - Debug, prerelease, release
@@ -132,7 +132,7 @@ endif
 Crypto_Library_Name := sgx_tcrypto
 
 Enclave_Cpp_Files_1 := $(wildcard Enclave/*.cpp)
-Enclave_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/libcxx -I../include -I../util
+Enclave_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/libcxx -I../include -I./TrustedUtil
 
 CC_BELOW_4_9 := $(shell expr "`$(CC) -dumpversion`" \< "4.9")
 ifeq ($(CC_BELOW_4_9), 1)
@@ -204,28 +204,32 @@ endif
 endif
 
 .config_$(Build_Mode)_$(SGX_ARCH):
-	@rm -rf .config_* $(App_Name) *.so *.a App/*.o Enclave/*.o Enclave/*_t.* Enclave/*_u.* ../util/*.o ../untrustedUtil/*.o ../util/*_t.* 
+	@rm -rf .config_* $(App_Name) *.so *.a App/*.o Enclave/*.o Enclave/*_t.* Enclave/*_u.* ./TrustedUtil/*.o ../untrustedUtil/*.o ./TrustedUtil/*_t.* 
 	@touch .config_$(Build_Mode)_$(SGX_ARCH)
 
 ######## Library Objects ########
 
-../util/LocalAttestationCode_t.c ../util/LocalAttestationCode_t.h : $(SGX_EDGER8R) ../util/LocalAttestationCode.edl
-	@cd ../util && $(SGX_EDGER8R) --trusted ../util/LocalAttestationCode.edl --search-path $(SGX_SDK)/include 
+./TrustedUtil/LocalAttestationCode_t.c ./TrustedUtil/LocalAttestationCode_t.h : $(SGX_EDGER8R) ./TrustedUtil/LocalAttestationCode.edl
+	@cd ./TrustedUtil && $(SGX_EDGER8R) --trusted ./LocalAttestationCode.edl --search-path $(SGX_SDK)/include 
 	@echo "GEN  =>  $@"
 
-../util/LocalAttestationCode_t.o: ../util/LocalAttestationCode_t.c
+./TrustedUtil/LocalAttestationCode_t.o: ./TrustedUtil/LocalAttestationCode_t.c
 	@$(CC) $(TrustLib_Compile_Flags) -c $< -o $@
 	@echo "CC   <=  $<"
 
-../util/%.o: ../util/%.cpp ../util/LocalAttestationCode_t.h
+./TrustedUtil/%.o: ./TrustedUtil/%.cpp ./TrustedUtil/LocalAttestationCode_t.h
 	@$(CXX) $(TrustLib_Compile_Flags) $(TrustLib_Compile_Cxx_Flags) -c $< -o $@
 	@echo "CC   <= $<"
 
-$(Trust_Lib_Name): ../util/LocalAttestationCode_t.o $(TrustLib_Cpp_Objects)
+$(Trust_Lib_Name): ./TrustedUtil/LocalAttestationCode_t.o $(TrustLib_Cpp_Objects)
 	@$(AR) rcs $@ $^
 	@echo "GEN  =>  $@"
 
 ../untrustedUtil/%.o: ../untrustedUtil/%.cpp
+	@$(CXX) $(UnTrustLib_Compile_Flags) -c $< -o $@
+	@echo "CC   <=  $<"
+
+./UntrustedUtil/%.o: ./UntrustedUtil/%.cpp
 	@$(CXX) $(UnTrustLib_Compile_Flags) -c $< -o $@
 	@echo "CC   <=  $<"
 
@@ -277,4 +281,4 @@ $(Enclave_Name): Enclave.so
 .PHONY: clean
 
 clean:
-	@rm -rf .config_* $(App_Name) *.so *.a App/*.o Enclave/*.o Enclave/*_t.* Enclave/*_u.* ../util/*.o ../untrustedUtil/*.o ../util/*_t.*
+	@rm -rf .config_* $(App_Name) *.so *.a App/*.o Enclave/*.o Enclave/*_t.* Enclave/*_u.* ./TrustedUtil/*.o ../untrustedUtil/*.o ./TrustedUtil/*_t.*
