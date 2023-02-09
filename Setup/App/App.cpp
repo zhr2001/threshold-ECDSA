@@ -41,7 +41,7 @@ extern std::map<sgx_enclave_id_t, uint32_t> g_enclave_id_map;
 
 sgx_enclave_id_t enclave_id;
 
-#define ENCLAVE_SETUP_NAME "libenclavesetup.signed.so"
+#define ENCLAVE_SETUP_NAME "libenclavesetup.so"
 
 void waitForKeyPress()
 {
@@ -80,11 +80,12 @@ int _tmain(int argc, TCHAR* argv[]) {
 
     do 
     {
-        key_t key = ftok("../..", i+1);
+        key_t key = ftok("../..", 1);
         int shmid = shmget(key, 1024, 0666|IPC_CREAT);
         char *str = (char*)shmat(shmid, (void*)0, 0);
         printf("[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1\n");
         str = mpz_get_str(nullptr, 16, ss->keyPartitions[i]);
+        printf("Secret sharing: %s\n", str);
         shmdt(str);
         printf("[START] Testing create session between SetUp Enclave and Node Enclave\n");
         status = Enclave_test_create_session(enclave_id, &ret_status, enclave_id, 0);
@@ -96,11 +97,11 @@ int _tmain(int argc, TCHAR* argv[]) {
         {
             if (ret_status == 0)
             {
-               printf("[END] Session establishment and key exchange failure between SetUp and Node: Error code is %x\n", ret_status);
+               printf("[END] Secure Channel Establishment between Setup and Node successful !!!\n");
             } 
             else 
             {
-                printf("[END] Session establishment and key exchange failure between Initiator (E1) and Responder (E2): Error code is %x\n", ret_status);
+                printf("[END] Session establishment and key exchange failure between SetUp and Node: Error code is %x\n", ret_status);
                 break;
             }
         }
