@@ -1,5 +1,6 @@
 #include "../include/SecretSharing.h"
 #include <stdlib.h>
+#include <sgx_trts.h>
 #include <ctime>
 
 RandomPoly* createPoly(mpz_t k0, int t, mpz_t range) {
@@ -9,9 +10,10 @@ RandomPoly* createPoly(mpz_t k0, int t, mpz_t range) {
     mpz_init_set(rp->k0, k0);
 
     gmp_randstate_t state;
-    unsigned long seed = time(NULL);
+    uint32_t val;
+    sgx_read_rand((unsigned char *) &val, 4);
 	gmp_randinit_default(state);
-	gmp_randseed_ui(state, seed);
+	gmp_randseed_ui(state, val);
 
     for (int i = 0; i < t-1; i++) {
         mpz_init_set_si(rp->k[i], -1);
@@ -89,3 +91,10 @@ mpz_t* combiner(const DecryptoInfo *secrets, mpz_t modeP) {
     return secret;
 }
 
+SS* createSS(int threshold, int n, mpz_t *secret, mpz_t *modeP) {
+    return createSS(threshold, n, *secret, *modeP);
+}
+
+mpz_t* combiner(const DecryptoInfo *secrets, mpz_t* modeP) {
+    return combiner(secrets, *modeP);
+}

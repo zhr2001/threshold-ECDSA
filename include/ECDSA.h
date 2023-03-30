@@ -1,7 +1,7 @@
 #ifndef _ECDSA_H_
 #define _ECDSA_H_
 
-#include <gmp.h>
+#include "sgx_tgmp.h"
 
 typedef struct point {
     mpz_t x;
@@ -35,29 +35,7 @@ typedef struct EllipticCurve {
 extern "C" {
 #endif
 
-point* createPoint(char *x, char *y);
-
-point* duplicatePoint(const point *p);
-
-void freePoint(point *append);
-
-EC* createEC(char *p, char *n, point *G, int a, int b, int h);
-
-mpz_t* inverse_mod(const mpz_t k, const mpz_t p);
-
-int is_on_curve(const point *p, const EC *curve);
-
-point* point_neg(const point *p, const EC *curve);
-
-point* point_add(const point *a, const point *b, const EC *curve);
-
-point* scalar_multi(mpz_t k, const point *a, const EC *curve);
-
-key_pair* make_keypair(const EC *curve);
-
-mpz_t* hash_message(const char *message, int length, const EC *curve);
-
-sign* sign_message(mpz_t privateKey, const char *message, const EC *curve);
+sign* sign_message(mpz_t* privateKey, const char *message, const EC *curve);
 
 int verifySignature(const point *publicKey, const char *message, const sign *signature, const EC *curve);
 

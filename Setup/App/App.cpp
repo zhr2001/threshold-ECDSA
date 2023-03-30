@@ -22,6 +22,10 @@
 #define scanf_s scanf
 #define _tmain main
 
+extern std::map<sgx_enclave_id_t, uint32_t> g_enclave_id_map;
+
+sgx_enclave_id_t enclave_id;
+
 SS* createSecretSharings() {
     mpz_t randomNumber2Secret, p;
     mpz_init(randomNumber2Secret);
@@ -34,12 +38,10 @@ SS* createSecretSharings() {
     {
         mpz_urandomb(randomNumber2Secret, state, 256);
     }
-    return createSS(THRESH, NODE_NUM, randomNumber2Secret, p);
+    SS *res;
+    Enclave_createSS(enclave_id, &res, THRESH, NODE_NUM, &randomNumber2Secret, &p);
+    return res;
 }
-
-extern std::map<sgx_enclave_id_t, uint32_t> g_enclave_id_map;
-
-sgx_enclave_id_t enclave_id;
 
 #define ENCLAVE_SETUP_NAME "libenclavesetup.so"
 

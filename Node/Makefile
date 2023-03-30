@@ -71,14 +71,14 @@ endif
 ######## Library Settings ########
 
 Trust_Lib_Name := libLocalAttestation_Trusted.a
-TrustLib_Cpp_Files := $(wildcard ./TrustedUtil/*.cpp)
+TrustLib_Cpp_Files := $(wildcard ./TrustedUtil/*.cpp) $(wildcard ../TrustedGMPUtil/*.cpp)
 TrustLib_Cpp_Objects := $(TrustLib_Cpp_Files:.cpp=.o)
 TrustLib_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/libcxx -I$(SGX_SDK)/include/epid -I../include -I$(SGX_SSL)/include
 TrustLib_Compile_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector  $(TrustLib_Include_Paths)
 TrustLib_Compile_Cxx_Flags :=  -std=c++11 -nostdinc++
 
 UnTrustLib_Name := libLocalAttestation_unTrusted.a
-UnTrustLib_Cpp_Files := $(wildcard ../untrustedUtil/*.cpp) $(wildcard ./UntrustedUtil/*.cpp)
+UnTrustLib_Cpp_Files := $(wildcard ./UntrustedUtil/*.cpp) 
 UnTrustLib_Cpp_Objects := $(UnTrustLib_Cpp_Files:.cpp=.o)
 UnTrustLib_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK)/include/ippcp -I../include -I$(SGX_SSL)/include -I./TrustedUtil
 UnTrustLib_Compile_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes -std=c++11 $(UnTrustLib_Include_Paths)
@@ -107,7 +107,7 @@ else
 	App_Compile_Flags += -DNDEBUG -UEDEBUG -UDEBUG
 endif
 
-App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -L. -lpthread -lLocalAttestation_unTrusted -lgmp
+App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -L. -lpthread -lLocalAttestation_unTrusted -lsgx_tgmp
 
 ifneq ($(SGX_MODE), HW)
 	App_Link_Flags += -lsgx_uae_service_sim
@@ -152,7 +152,7 @@ Enclave_Compile_Flags += $(Enclave_Include_Paths)
 # Otherwise, you may get some undesirable errors.
 Common_Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
-	-Wl,--start-group -lsgx_tstdc -lsgx_tcxx -l$(Crypto_Library_Name) -L. -lLocalAttestation_Trusted -l$(Service_Library_Name) -Wl,--end-group \
+	-Wl,--start-group -lsgx_tstdc -lsgx_tcxx -lsgx_tgmp -lsgx_tsgxssl_crypto -l$(Crypto_Library_Name) -L. -lLocalAttestation_Trusted -l$(Service_Library_Name) -Wl,--end-group \
 	-Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
 	-Wl,-pie,-eenclave_entry -Wl,--export-dynamic  \
 	-Wl,--defsym,__ImageBase=0 -Wl,--gc-sections
@@ -160,7 +160,7 @@ Enclave_Link_Flags := $(Common_Enclave_Link_Flags) -Wl,--version-script=$(Enclav
 
 Enclave_Cpp_Objects := $(Enclave_Cpp_Files_1:.cpp=.o)
 
-Enclave_Name := libenclavenode.so
+Enclave_Name := libenclavesetup.so
 
 ifeq ($(SGX_MODE), HW)
 ifeq ($(SGX_DEBUG), 1)
@@ -225,8 +225,8 @@ $(Trust_Lib_Name): ./TrustedUtil/LocalAttestationCode_t.o $(TrustLib_Cpp_Objects
 	@$(AR) rcs $@ $^
 	@echo "GEN  =>  $@"
 
-../untrustedUtil/%.o: ../untrustedUtil/%.cpp
-	@$(CXX) $(UnTrustLib_Compile_Flags) -c $< -o $@
+../TrustedGMPUtil/%.o: ../TrustedGMPUtil/%.cpp
+	@$(CXX) $(TrustLib_Compile_Flags) -c $< -o $@
 	@echo "CC   <=  $<"
 
 ./UntrustedUtil/%.o: ./UntrustedUtil/%.cpp
@@ -281,4 +281,4 @@ $(Enclave_Name): Enclave.so
 .PHONY: clean
 
 clean:
-	@rm -rf .config_* $(App_Name) *.so *.a App/*.o Enclave/*.o Enclave/*_t.* Enclave/*_u.* ./TrustedUtil/*.o ../untrustedUtil/*.o ./TrustedUtil/*_t.* UntrustedUtil/*.o
+	@rm -rf .config_* $(App_Name) *.so *.a App/*.o Enclave/*.o Enclave/*_t.* Enclave/*_u.* ./TrustedUtil/*.o ../untrustedUtil/*.o ./TrustedUtil/*_t.* ./UntrustedUtil/*.o

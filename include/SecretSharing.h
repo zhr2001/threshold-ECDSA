@@ -1,7 +1,7 @@
 #ifndef _SECRET_SHARING_H_
 #define _SECRET_SHARING_H_
 
-#include <gmp.h>
+#include "sgx_tgmp.h"
 
 typedef struct SecreatShares {
     int n;
@@ -22,13 +22,9 @@ typedef struct RandomPolynomial {
 extern "C" {
 #endif
 
-RandomPoly* createPoly(mpz_t k0, int t, mpz_t range);
+SS* createSS(int threshold, int n, mpz_t* secret, mpz_t* modeP);
 
-mpz_t* getPolyValue(const RandomPolynomial *f, int x, mpz_t modeP);
-
-SS* createSS(int threshold, int n, mpz_t secret, mpz_t modeP);
-
-mpz_t* combiner(const DecryptoInfo *secrets, mpz_t modeP);
+mpz_t* combiner(const DecryptoInfo *secrets, mpz_t* modeP);
 
 #ifdef __cplusplus
 }

@@ -1,10 +1,9 @@
 #include "../include/ECDSA.h"
 #include <string.h>
 #include <assert.h>
-#include <stdlib.h>
-#include <ctime>
-#include <openssl/sha.h>
-#include <openssl/crypto.h>
+#include "sgx_trts.h"
+#include "openssl/sha.h"
+#include "openssl/crypto.h"
 
 char numberToHex(int m) {
     assert(0<=m && m<= 15);
@@ -264,9 +263,10 @@ key_pair* make_keypair(const EC *curve) {
     mpz_init(publicKey->y);
 
     gmp_randstate_t state;
-    unsigned long seed = time(NULL);
+    uint32_t val; 
+    sgx_read_rand((unsigned char *) &val, 4);
 	gmp_randinit_default(state);
-	gmp_randseed_ui(state, seed);
+	gmp_randseed_ui(state, val);
     
     while (mpz_cmp_si(privateKey, 0) <= 0 || mpz_cmp(privateKey, curve->n) >= 0)
     {
@@ -313,9 +313,10 @@ sign* sign_message(mpz_t privateKey, const char *message, const EC *curve) {
     mpz_init(k);
 
     gmp_randstate_t state;
-    unsigned long seed = time(NULL);
+    uint32_t val;
+    sgx_read_rand((unsigned char *) &val, 4);
 	gmp_randinit_default(state);
-	gmp_randseed_ui(state, seed);
+	gmp_randseed_ui(state, val);
 
     while (mpz_cmp_si(res->r, 0) == 0 || mpz_cmp_si(res->s, 0) == 0)
     {
@@ -356,12 +357,14 @@ int verifySignature(const point *publicKey, const char *message, const sign *sig
     if (mpz_cmp(temp1, temp2) == 0) {
         mpz_clear(temp1);
         mpz_clear(temp2);
-        printf("Signature matched\n");
         return 1;
     } else {
         mpz_clear(temp1);
         mpz_clear(temp2);
-        printf("Invalid Signature\n");
         return 0;
     }
+}
+
+sign* sign_message(mpz_t* privateKey, const char *message, const EC *curve) {
+    return sign_message(*privateKey, message, curve);
 }

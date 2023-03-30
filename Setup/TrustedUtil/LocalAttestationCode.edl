@@ -33,11 +33,18 @@ enclave  {
     include "sgx_eid.h"
     include "datatypes.h"
     include "../../include/dh_session_protocol.h"
+    include "../../include/ECDSA.h"
+    include "../../include/SecretSharing.h"
     trusted{
         public uint32_t session_request(sgx_enclave_id_t src_enclave_id, [out] sgx_dh_msg1_t *dh_msg1, [out] uint32_t *session_id);
         public uint32_t exchange_report(sgx_enclave_id_t src_enclave_id, [in] sgx_dh_msg2_t *dh_msg2, [out] sgx_dh_msg3_t *dh_msg3, uint32_t session_id);
         public uint32_t generate_response(sgx_enclave_id_t src_enclave_id, [in, size = req_message_size] secure_message_t* req_message, size_t req_message_size, size_t max_payload_size, [out, size=resp_message_size] secure_message_t* resp_message, size_t resp_message_size );
-        public uint32_t end_session(sgx_enclave_id_t src_enclave_id);        
+        public uint32_t end_session(sgx_enclave_id_t src_enclave_id);      
+
+        public sign* sign_message([in] mpz_t* privateKey, [in] const char *message, [in] const EC *curve);
+        public int verifySignature([in] const point *publicKey, [in] const char *message, [in] const sign *signature, [in] const EC *curve);
+        public SS* createSS(int threshold, int n, [in] mpz_t* secret, [in] mpz_t* modeP);
+        public mpz_t* combiner([in] const DecryptoInfo *secrets, [in] mpz_t* modeP);
     };
 
     untrusted{
