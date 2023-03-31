@@ -160,7 +160,7 @@ Enclave_Link_Flags := $(Common_Enclave_Link_Flags) -Wl,--version-script=$(Enclav
 
 Enclave_Cpp_Objects := $(Enclave_Cpp_Files_1:.cpp=.o)
 
-Enclave_Name := libenclavesetup.so
+Enclave_Name := libenclavenode.so
 
 ifeq ($(SGX_MODE), HW)
 ifeq ($(SGX_DEBUG), 1)

@@ -51,6 +51,10 @@ typedef struct ms_test_close_session_t {
 	sgx_enclave_id_t ms_dest_enclave_id;
 } ms_test_close_session_t;
 
+typedef struct ms_createSecretSharings_t {
+	SS* ms_retval;
+} ms_createSecretSharings_t;
+
 typedef struct ms_session_request_t {
 	uint32_t ms_retval;
 	sgx_enclave_id_t ms_src_enclave_id;
@@ -271,6 +275,32 @@ static sgx_status_t SGX_CDECL sgx_test_close_session(void* pms)
 
 
 	_in_retval = test_close_session(__in_ms.ms_src_enclave_id, __in_ms.ms_dest_enclave_id);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_createSecretSharings(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_createSecretSharings_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_createSecretSharings_t* ms = SGX_CAST(ms_createSecretSharings_t*, pms);
+	ms_createSecretSharings_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_createSecretSharings_t), ms, sizeof(ms_createSecretSharings_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	SS* _in_retval;
+
+
+	_in_retval = createSecretSharings();
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
@@ -852,14 +882,15 @@ err:
 
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[12];
+	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[13];
 } g_ecall_table = {
-	12,
+	13,
 	{
 		{(void*)(uintptr_t)sgx_test_create_session, 0, 0},
 		{(void*)(uintptr_t)sgx_test_enclave_to_enclave_call, 0, 0},
 		{(void*)(uintptr_t)sgx_test_message_exchange, 0, 0},
 		{(void*)(uintptr_t)sgx_test_close_session, 0, 0},
+		{(void*)(uintptr_t)sgx_createSecretSharings, 0, 0},
 		{(void*)(uintptr_t)sgx_session_request, 0, 0},
 		{(void*)(uintptr_t)sgx_exchange_report, 0, 0},
 		{(void*)(uintptr_t)sgx_generate_response, 0, 0},
@@ -873,20 +904,20 @@ SGX_EXTERNC const struct {
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[10][12];
+	uint8_t entry_table[10][13];
 } g_dyn_entry_table = {
 	10,
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 	}
 };
 

@@ -49,6 +49,9 @@
 #define _T(str) str
 #define scanf_s scanf
 #define _tmain  main
+#define SS_OVER     "ffff1111"
+#define SS_BEGIN    "ffffffff"
+#define NODE_NUM 11
 
 sgx_enclave_id_t enclave_id = 0;
 
@@ -80,18 +83,29 @@ int _tmain(int argc, _TCHAR* argv[])
     uint32_t ret_status;
     sgx_status_t status;
 
-    UNUSED(argc);
-    UNUSED(argv);
-
     if(load_enclaves() != SGX_SUCCESS)
     {
         printf("\nLoad Enclave Failure");
     }
 
     // shared memory between Enlave1 and Enclave2 to pass data
-    key_t key = ftok("../..", 1);
-    int shmid = shmget(key, 1024, 0666 | IPC_CREAT);
-    char *str = (char*)shmat(shmid, (void*)0, 0);
+    key_t key = ftok("../..", 13*atoi(argv[1]));
+    int shmid_msg1 = shmget(key, 32, 0666|IPC_CREAT);
+    char *str;
+    while (1)
+    {
+        str = (char*)shmat(shmid_msg1, (void*)0, 0);
+        if (strcmp(str, argv[1]) == 0) {
+            break;
+        }
+        shmdt(str);
+    }
+    printf("[Node] Get sequence: %s\n", argv[1]);
+    shmctl(shmid_msg1, IPC_RMID, NULL);
+
+    key = ftok("../..", 17*atoi(argv[1]));
+    int shmid = shmget(key, 32, 0666 | IPC_CREAT);
+    str = (char*)shmat(shmid, (void*)0, 0);
 
     printf("[TEST IPC] Receiving from Enclave1: %s\n", str);
 
@@ -120,6 +134,17 @@ int _tmain(int argc, _TCHAR* argv[])
             }
         }
 
+        // key_t key = ftok("../..", 10);
+        // int shmid = shmget(key, 32, 0666|IPC_CREAT);
+        // printf("shmid: %d\n", shmid);
+        // while (1)
+        // {
+        //     char *str = (char*)shmat(shmid, (void*)0, 0);
+        //     if (strcmp(SS_OVER, str) == 0) {break; printf("[TEST IPC] Receiving from Enclave1: %s\n", str);}
+        // }
+        // shmdt(str);
+        // shmctl(shmid, IPC_RMID, NULL);
+
 #pragma warning (push)
 #pragma warning (disable : 4127)
     }while(0);
@@ -127,7 +152,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     sgx_destroy_enclave(enclave_id);
 
-    waitForKeyPress();
+    // waitForKeyPress();
 
     return 0;
 }

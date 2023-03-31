@@ -41,6 +41,9 @@
 #include <map>
 
 #define UNUSED(val) (void)(val)
+#define NODE_NUM    11
+#define THRESH      5
+#define MODE_P "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
 
 std::map<sgx_enclave_id_t, dh_session_t>g_src_session_info_map;
 
@@ -363,5 +366,22 @@ static uint32_t e1_foo1_wrapper(ms_in_msg_exchange_t *ms,
     }
     SAFE_FREE(p_struct_var);
     return SUCCESS;
+}
+
+SS* createSecretSharings() {
+    mpz_t randomNumber2Secret, p;
+    mpz_init(randomNumber2Secret);
+    mpz_init_set_str(p, MODE_P, 16);
+    gmp_randstate_t state;
+    uint32_t val;
+    sgx_read_rand((unsigned char *) &val, 4);
+	gmp_randinit_default(state);
+	gmp_randseed_ui(state, val);
+    while (mpz_cmp_si(randomNumber2Secret, 0) <= 0 || mpz_cmp(randomNumber2Secret, p) >= 0)
+    {
+        mpz_urandomb(randomNumber2Secret, state, 256);
+    }
+    SS *res = createSS(THRESH, NODE_NUM, &randomNumber2Secret, &p);
+    return res;
 }
 

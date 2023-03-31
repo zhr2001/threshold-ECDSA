@@ -190,5 +190,5 @@ ATTESTATION_STATUS end_session_ocall(sgx_enclave_id_t src_enclave_id, sgx_enclav
 
 void ocall_print_string(const char *str)
 {
-    printf("%s", str);
+    printf("[SetUp] %s", str);
 }
