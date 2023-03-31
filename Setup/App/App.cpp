@@ -22,7 +22,7 @@
 #define _tmain main
 #define SS_OVER     "ffff1111"
 #define SS_BEGIN    "ffffffff"
-#define NODE_NUM 11
+#define NODE_NUM 9
 
 extern std::map<sgx_enclave_id_t, uint32_t> g_enclave_id_map;
 
@@ -86,7 +86,7 @@ void* thread_function(void* args) {
     int shmid_msg1 = shmget(key, 32, 0666|IPC_CREAT);
     char *str = (char*)shmat(shmid_msg1, (void*)0, 0);
     strncpy(str, itoa(i),strlen(itoa(i)));
-    printf("[SetUp] Get sequence: %s\n", itoa(i));
+    printf("[SetUp %d] Get sequence: %s\n", i, itoa(i));
     shmdt(str);
 
     key = ftok("../..", 17*i);
@@ -95,7 +95,7 @@ void* thread_function(void* args) {
     char *c_str = (char*)shmat(shmid_msg3, (void*)0, 0);
     char *S = mpz_get_str(nullptr, 16, ss->keyPartitions[i-1]);
     strncpy(c_str, S, strlen(S));
-    printf("Secret sharing: %s\n", c_str);
+    printf("%d Secret sharing: %s\n", i, c_str);
     shmdt(c_str);
 
     printf("[START] Testing create session between SetUp Enclave and Node Enclave\n");
@@ -103,17 +103,16 @@ void* thread_function(void* args) {
     status = SGX_SUCCESS;
     if (status != SGX_SUCCESS) 
     {
-        printf("[END] test_create_session Ecall failed: Error code is %x\n", status);
+        printf("[END %d] test_create_session Ecall failed: Error code is %x\n", i, status);
     } else 
     {
         if (ret_status == 0)
         {
-            printf("[END] Secure Channel Establishment between Setup and Node successful !!!\n");
+            printf("[END %d] Secure Channel Establishment between Setup and Node successful !!!\n", i);
         } 
         else 
         {
-            printf("[END] Session establishment and key exchange failure between SetUp and Node: Error code is %x\n", ret_status);
-            exit(-1);
+            printf("[END %d] Session establishment and key exchange failure between SetUp and Node: Error code is %x\n", i, ret_status);
         }
     }
     shmctl(shmid_msg1, IPC_RMID, NULL);
@@ -132,16 +131,16 @@ int _tmain(int argc, TCHAR* argv[]) {
     }
 
     pthread_t tidp[NODE_NUM];
+    t_para p[NODE_NUM];
     pthread_mutex_init(&mutex,NULL); 
 
     SS *ss;
     Enclave_createSecretSharings(enclave_id, &ss);
 
     for (int i = 0; i < NODE_NUM; i++) {
-        t_para p;
-        p.i = i+1;
-        p.ss = ss;
-        int ret = pthread_create(&tidp[i],NULL, thread_function, (void*)&p);  
+        p[i].i = i+1;
+        p[i].ss = ss;
+        int ret = pthread_create(&tidp[i], NULL, thread_function, (void*)&p[i]);  
         if(ret!=0)  
         {  
             printf("Create %d failed\n",i);  
@@ -149,9 +148,9 @@ int _tmain(int argc, TCHAR* argv[]) {
         }  
     }
 
-    for (int i=0;i<NODE_NUM;i++)
+    for (int i=0;i  < NODE_NUM;i++)
     {
-        pthread_join(tidp[i],NULL);  //problem in this line
+        pthread_join(tidp[i], NULL);  //problem in this line
     }
     
     key_t key = ftok("../..", 10);

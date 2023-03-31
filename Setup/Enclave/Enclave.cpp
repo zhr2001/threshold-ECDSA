@@ -41,7 +41,7 @@
 #include <map>
 
 #define UNUSED(val) (void)(val)
-#define NODE_NUM    11
+#define NODE_NUM    9
 #define THRESH      5
 #define MODE_P "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
 

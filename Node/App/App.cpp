@@ -94,42 +94,44 @@ int _tmain(int argc, _TCHAR* argv[])
     char *str;
     while (1)
     {
+        int flag = 0;
         str = (char*)shmat(shmid_msg1, (void*)0, 0);
         if (strcmp(str, argv[1]) == 0) {
-            break;
+            flag = 1;
         }
         shmdt(str);
+        if (flag) break;
     }
-    printf("[Node] Get sequence: %s\n", argv[1]);
+    printf("[Node %s] Get sequence: %s\n", argv[1], argv[1]);
     shmctl(shmid_msg1, IPC_RMID, NULL);
 
     key = ftok("../..", 17*atoi(argv[1]));
     int shmid = shmget(key, 32, 0666 | IPC_CREAT);
     str = (char*)shmat(shmid, (void*)0, 0);
 
-    printf("[TEST IPC] Receiving from Enclave1: %s\n", str);
+    printf("[TEST IPC %s] Receiving from Enclave1: %s\n", argv[1], str);
 
     shmdt(str);
     shmctl(shmid, IPC_RMID, NULL);
 
     do
     {
-        printf("[START] Testing create session between Enclave1 (Initiator) and Enclave2 (Responder)\n");
+        printf("[START %s] Testing create session between Enclave1 (Initiator) and Enclave2 (Responder)\n", argv[1]);
         status = Enclave_test_create_session(enclave_id, &ret_status, enclave_id, 0);
         if (status!=SGX_SUCCESS)
         {
-            printf("[END] test_create_session Ecall failed: Error code is %x\n", status);
+            printf("[END %s] test_create_session Ecall failed: Error code is %x\n", argv[1], status);
             break;
         }
         else
         {
             if(ret_status==0)
             {
-                printf("[END] Secure Channel Establishment between Initiator (E1) and Responder (E2) Enclaves successful !!!\n");
+                printf("[END %s] Secure Channel Establishment between Initiator (E1) and Responder (E2) Enclaves successful !!!\n", argv[1]);
             }
             else
             {
-                printf("[END] Session establishment and key exchange failure between Initiator (E1) and Responder (E2): Error code is %x\n", ret_status);
+                printf("[END %s] Session establishment and key exchange failure between Initiator (E1) and Responder (E2): Error code is %x\n", argv[1], ret_status);
                 break;
             }
         }

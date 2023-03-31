@@ -1,0 +1,17 @@
+[Node 6] Get sequence: 6
+[TEST IPC 6] Receiving from Enclave1: f204a8c0b3260e250ad105ef280b4b3abf742ad9d522c07a47e1b1378156fe9f
+[START 6] Testing create session between Enclave1 (Initiator) and Enclave2 (Responder)
+[Node] [ECALL] create_session()
+[Node] [ECALL] Initializing the session as session responder...
+[Node] [ECALL] Getting a new SessionID
+[Node] [ECALL] Generating message1 that will be passed to session initiator
+[OCALL IPC] Passing SessionID to shared memory for Enclave1
+[OCALL IPC] Passing message1 to shared memory for Enclave1
+[OCALL IPC] Waiting for Enclave1 to process SessionID and message1...
+[OCALL IPC] Message2 should be ready
+[OCALL IPC] Retrieving message2 from shared memory
+[Node] [ECALL] Processing message2 from Enclave1(Initiator) and obtain message3
+[Node] [ECALL] Verifying Enclave1(Initiator)'s trust
+[OCALL IPC] Passing message3 to shared memory for Enclave1
+[OCALL IPC] Waiting for Enclave1 to process message3...
+[END 6] Secure Channel Establishment between Initiator (E1) and Responder (E2) Enclaves successful !!!

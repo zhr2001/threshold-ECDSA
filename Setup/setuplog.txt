@@ -1,0 +1,139 @@
+[SetUp 1] Get sequence: 1
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+1 Secret sharing: b23ccda2e18282b824f532852f60f9babb526fb52645e00a8a1a96ee8bf5d34f
+[START] Testing create session between SetUp Enclave and Node Enclave
+[SetUp] [ECALL] create_session()
+[SetUp] [ECALL] Initializing the session as session initiator...
+[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
+[OCALL IPC] SessionID and message1 should be ready
+[OCALL IPC] Retriving SessionID from shared memory
+[OCALL IPC] Retriving message1 from shared memory
+[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
+[OCALL IPC] Passing message2 to shared memory for Enclave2
+[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
+[OCALL IPC] Message3 should be ready
+[OCALL IPC] Retrieving message3 from shared memory
+[SetUp] [ECALL] Processing message3 obtained from Enclave3
+[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
+[END 1] Secure Channel Establishment between Setup and Node successful !!!
+[SetUp 2] Get sequence: 2
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+2 Secret sharing: 64554d7240cb7994af73d0546b0b5369f4508699e0d381c80e063b073efe0120
+[START] Testing create session between SetUp Enclave and Node Enclave
+[SetUp] [ECALL] create_session()
+[SetUp] [ECALL] Initializing the session as session initiator...
+[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
+[OCALL IPC] SessionID and message1 should be ready
+[OCALL IPC] Retriving SessionID from shared memory
+[OCALL IPC] Retriving message1 from shared memory
+[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
+[OCALL IPC] Passing message2 to shared memory for Enclave2
+[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
+[OCALL IPC] Message3 should be ready
+[OCALL IPC] Retrieving message3 from shared memory
+[SetUp] [ECALL] Processing message3 obtained from Enclave3
+[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
+[END 2] Secure Channel Establishment between Setup and Node successful !!!
+[SetUp 3] Get sequence: 3
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+3 Secret sharing: ace0f8a702d5bf33a91190ac99877b7c837ecc3d2bce1e480d0fa7c4d712664e
+[START] Testing create session between SetUp Enclave and Node Enclave
+[SetUp] [ECALL] create_session()
+[SetUp] [ECALL] Initializing the session as session initiator...
+[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
+[OCALL IPC] SessionID and message1 should be ready
+[OCALL IPC] Retriving SessionID from shared memory
+[OCALL IPC] Retriving message1 from shared memory
+[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
+[OCALL IPC] Passing message2 to shared memory for Enclave2
+[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
+[OCALL IPC] Message3 should be ready
+[OCALL IPC] Retrieving message3 from shared memory
+[SetUp] [ECALL] Processing message3 obtained from Enclave3
+[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
+[END 3] Secure Channel Establishment between Setup and Node successful !!!
+[SetUp 4] Get sequence: 4
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+4 Secret sharing: 5cb15c5cda8828e08f861be2a3d33ea4810dfbd041d77aee40d97986f0419611
+[START] Testing create session between SetUp Enclave and Node Enclave
+[SetUp] [ECALL] create_session()
+[SetUp] [ECALL] Initializing the session as session initiator...
+[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
+[OCALL IPC] SessionID and message1 should be ready
+[OCALL IPC] Retriving SessionID from shared memory
+[OCALL IPC] Retriving message1 from shared memory
+[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
+[OCALL IPC] Passing message2 to shared memory for Enclave2
+[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
+[OCALL IPC] Message3 should be ready
+[OCALL IPC] Retrieving message3 from shared memory
+[SetUp] [ECALL] Processing message3 obtained from Enclave3
+[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
+[END 4] Secure Channel Establishment between Setup and Node successful !!!
+[SetUp 6] Get sequence: 6
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+6 Secret sharing: f204a8c0b3260e250ad105ef280b4b3abf742ad9d522c07a47e1b1378156fe9f
+[START] Testing create session between SetUp Enclave and Node Enclave
+[SetUp] [ECALL] create_session()
+[SetUp] [ECALL] Initializing the session as session initiator...
+[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
+[OCALL IPC] SessionID and message1 should be ready
+[OCALL IPC] Retriving SessionID from shared memory
+[OCALL IPC] Retriving message1 from shared memory
+[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
+[OCALL IPC] Passing message2 to shared memory for Enclave2
+[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
+[OCALL IPC] Message3 should be ready
+[OCALL IPC] Retrieving message3 from shared memory
+[SetUp] [ECALL] Processing message3 obtained from Enclave3
+[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
+[END 6] Secure Channel Establishment between Setup and Node successful !!!
+[SetUp 7] Get sequence: 7
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+7 Secret sharing: 35c8d2ac368484e68c158722ac2db04ac80ec601e32d6a65a90e438c9c86d4fa
+[START] Testing create session between SetUp Enclave and Node Enclave
+[SetUp] [ECALL] create_session()
+[SetUp] [ECALL] Initializing the session as session initiator...
+[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
+[OCALL IPC] SessionID and message1 should be ready
+[OCALL IPC] Retriving SessionID from shared memory
+[OCALL IPC] Retriving message1 from shared memory
+[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
+[OCALL IPC] Passing message2 to shared memory for Enclave2
+[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
+[OCALL IPC] Message3 should be ready
+[OCALL IPC] Retrieving message3 from shared memory
+[SetUp] [ECALL] Processing message3 obtained from Enclave3
+[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
+[END 7] Secure Channel Establishment between Setup and Node successful !!!
+[SetUp 8] Get sequence: 8
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+8 Secret sharing: 9d543793d4711609d30d17ee208be7b3ce91827cddd856825ad793ae7f649df5
+[START] Testing create session between SetUp Enclave and Node Enclave
+[SetUp] [ECALL] create_session()
+[SetUp] [ECALL] Initializing the session as session initiator...
+[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
+[OCALL IPC] SessionID and message1 should be ready
+[OCALL IPC] Retriving SessionID from shared memory
+[OCALL IPC] Retriving message1 from shared memory
+[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
+[OCALL IPC] Passing message2 to shared memory for Enclave2
+[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
+[OCALL IPC] Message3 should be ready
+[OCALL IPC] Retrieving message3 from shared memory
+[SetUp] [ECALL] Processing message3 obtained from Enclave3
+[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
+[END 8] Secure Channel Establishment between Setup and Node successful !!!
+[SetUp 9] Get sequence: 9
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+9 Secret sharing: b6168b995c77e76d4e6e3259a65e4065828f40cb1b4a8072318931a5312b67b9
+[START] Testing create session between SetUp Enclave and Node Enclave
+[SetUp] [ECALL] create_session()
+[SetUp] [ECALL] Initializing the session as session initiator...
+[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
+[OCALL IPC] SessionID and message1 should be ready
+[OCALL IPC] Retriving SessionID from shared memory
+[OCALL IPC] Retriving message1 from shared memory
+[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
+[OCALL IPC] Passing message2 to shared memory for Enclave2
+[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3
