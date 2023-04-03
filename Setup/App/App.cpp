@@ -103,7 +103,7 @@ void* thread_function(void* args) {
     shmdt(str);
 
     key = ftok("../..", 17*i);
-    int shmid_msg3 = shmget(key, 256, 0666|IPC_CREAT);
+    int shmid_msg3 = shmget(key, 512, 0666|IPC_CREAT);
     printf("[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1\n");
     char *c_str = (char*)shmat(shmid_msg3, (void*)0, 0);
     char *S = mpz_get_str(nullptr, 16, ss->keyPartitions[i-1]);

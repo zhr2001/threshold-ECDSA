@@ -106,7 +106,7 @@ int _tmain(int argc, _TCHAR* argv[])
     shmctl(shmid_msg1, IPC_RMID, NULL);
 
     key = ftok("../..", 17*atoi(argv[1]));
-    int shmid = shmget(key, 256, 0666 | IPC_CREAT);
+    int shmid = shmget(key, 512, 0666 | IPC_CREAT);
     str = (char*)shmat(shmid, (void*)0, 0);
 
     printf("[TEST IPC %s] Receiving from Enclave1: %s\n", argv[1], str);
