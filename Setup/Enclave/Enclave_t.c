@@ -52,7 +52,7 @@ typedef struct ms_test_close_session_t {
 } ms_test_close_session_t;
 
 typedef struct ms_createSecretSharings_t {
-	SS* ms_retval;
+	publicKeySS* ms_retval;
 } ms_createSecretSharings_t;
 
 typedef struct ms_session_request_t {
@@ -113,6 +113,29 @@ typedef struct ms_combiner_t {
 	const DecryptoInfo* ms_secrets;
 	mpz_t* ms_modeP;
 } ms_combiner_t;
+
+typedef struct ms_scalar_multi_t {
+	point* ms_retval;
+	mpz_t* ms_k;
+	const point* ms_p;
+	const EC* ms_curve;
+} ms_scalar_multi_t;
+
+typedef struct ms_createPoint_t {
+	point* ms_retval;
+	char* ms_x;
+	char* ms_y;
+} ms_createPoint_t;
+
+typedef struct ms_createEC_t {
+	EC* ms_retval;
+	char* ms_p;
+	char* ms_n;
+	point* ms_G;
+	int ms_a;
+	int ms_b;
+	int ms_h;
+} ms_createEC_t;
 
 typedef struct ms_session_request_ocall_t {
 	uint32_t ms_retval;
@@ -297,7 +320,7 @@ static sgx_status_t SGX_CDECL sgx_createSecretSharings(void* pms)
 		return SGX_ERROR_UNEXPECTED;
 	}
 	sgx_status_t status = SGX_SUCCESS;
-	SS* _in_retval;
+	publicKeySS* _in_retval;
 
 
 	_in_retval = createSecretSharings();
@@ -880,11 +903,268 @@ err:
 	return status;
 }
 
+static sgx_status_t SGX_CDECL sgx_scalar_multi(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_scalar_multi_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_scalar_multi_t* ms = SGX_CAST(ms_scalar_multi_t*, pms);
+	ms_scalar_multi_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_scalar_multi_t), ms, sizeof(ms_scalar_multi_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	mpz_t* _tmp_k = __in_ms.ms_k;
+	size_t _len_k = sizeof(mpz_t);
+	mpz_t* _in_k = NULL;
+	const point* _tmp_p = __in_ms.ms_p;
+	size_t _len_p = sizeof(point);
+	point* _in_p = NULL;
+	const EC* _tmp_curve = __in_ms.ms_curve;
+	size_t _len_curve = sizeof(EC);
+	EC* _in_curve = NULL;
+	point* _in_retval;
+
+	CHECK_UNIQUE_POINTER(_tmp_k, _len_k);
+	CHECK_UNIQUE_POINTER(_tmp_p, _len_p);
+	CHECK_UNIQUE_POINTER(_tmp_curve, _len_curve);
+
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+
+	if (_tmp_k != NULL && _len_k != 0) {
+		_in_k = (mpz_t*)malloc(_len_k);
+		if (_in_k == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_k, _len_k, _tmp_k, _len_k)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	if (_tmp_p != NULL && _len_p != 0) {
+		_in_p = (point*)malloc(_len_p);
+		if (_in_p == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_p, _len_p, _tmp_p, _len_p)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	if (_tmp_curve != NULL && _len_curve != 0) {
+		_in_curve = (EC*)malloc(_len_curve);
+		if (_in_curve == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_curve, _len_curve, _tmp_curve, _len_curve)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	_in_retval = scalar_multi(_in_k, (const point*)_in_p, (const EC*)_in_curve);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	if (_in_k) free(_in_k);
+	if (_in_p) free(_in_p);
+	if (_in_curve) free(_in_curve);
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_createPoint(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_createPoint_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_createPoint_t* ms = SGX_CAST(ms_createPoint_t*, pms);
+	ms_createPoint_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_createPoint_t), ms, sizeof(ms_createPoint_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	char* _tmp_x = __in_ms.ms_x;
+	size_t _len_x = sizeof(char);
+	char* _in_x = NULL;
+	char* _tmp_y = __in_ms.ms_y;
+	size_t _len_y = sizeof(char);
+	char* _in_y = NULL;
+	point* _in_retval;
+
+	CHECK_UNIQUE_POINTER(_tmp_x, _len_x);
+	CHECK_UNIQUE_POINTER(_tmp_y, _len_y);
+
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+
+	if (_tmp_x != NULL && _len_x != 0) {
+		if ( _len_x % sizeof(*_tmp_x) != 0)
+		{
+			status = SGX_ERROR_INVALID_PARAMETER;
+			goto err;
+		}
+		_in_x = (char*)malloc(_len_x);
+		if (_in_x == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_x, _len_x, _tmp_x, _len_x)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	if (_tmp_y != NULL && _len_y != 0) {
+		if ( _len_y % sizeof(*_tmp_y) != 0)
+		{
+			status = SGX_ERROR_INVALID_PARAMETER;
+			goto err;
+		}
+		_in_y = (char*)malloc(_len_y);
+		if (_in_y == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_y, _len_y, _tmp_y, _len_y)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	_in_retval = createPoint(_in_x, _in_y);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	if (_in_x) free(_in_x);
+	if (_in_y) free(_in_y);
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_createEC(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_createEC_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_createEC_t* ms = SGX_CAST(ms_createEC_t*, pms);
+	ms_createEC_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_createEC_t), ms, sizeof(ms_createEC_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	char* _tmp_p = __in_ms.ms_p;
+	size_t _len_p = sizeof(char);
+	char* _in_p = NULL;
+	char* _tmp_n = __in_ms.ms_n;
+	size_t _len_n = sizeof(char);
+	char* _in_n = NULL;
+	point* _tmp_G = __in_ms.ms_G;
+	size_t _len_G = sizeof(point);
+	point* _in_G = NULL;
+	EC* _in_retval;
+
+	CHECK_UNIQUE_POINTER(_tmp_p, _len_p);
+	CHECK_UNIQUE_POINTER(_tmp_n, _len_n);
+	CHECK_UNIQUE_POINTER(_tmp_G, _len_G);
+
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+
+	if (_tmp_p != NULL && _len_p != 0) {
+		if ( _len_p % sizeof(*_tmp_p) != 0)
+		{
+			status = SGX_ERROR_INVALID_PARAMETER;
+			goto err;
+		}
+		_in_p = (char*)malloc(_len_p);
+		if (_in_p == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_p, _len_p, _tmp_p, _len_p)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	if (_tmp_n != NULL && _len_n != 0) {
+		if ( _len_n % sizeof(*_tmp_n) != 0)
+		{
+			status = SGX_ERROR_INVALID_PARAMETER;
+			goto err;
+		}
+		_in_n = (char*)malloc(_len_n);
+		if (_in_n == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_n, _len_n, _tmp_n, _len_n)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	if (_tmp_G != NULL && _len_G != 0) {
+		_in_G = (point*)malloc(_len_G);
+		if (_in_G == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_G, _len_G, _tmp_G, _len_G)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	_in_retval = createEC(_in_p, _in_n, _in_G, __in_ms.ms_a, __in_ms.ms_b, __in_ms.ms_h);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	if (_in_p) free(_in_p);
+	if (_in_n) free(_in_n);
+	if (_in_G) free(_in_G);
+	return status;
+}
+
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[13];
+	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[16];
 } g_ecall_table = {
-	13,
+	16,
 	{
 		{(void*)(uintptr_t)sgx_test_create_session, 0, 0},
 		{(void*)(uintptr_t)sgx_test_enclave_to_enclave_call, 0, 0},
@@ -899,25 +1179,28 @@ SGX_EXTERNC const struct {
 		{(void*)(uintptr_t)sgx_verifySignature, 0, 0},
 		{(void*)(uintptr_t)sgx_createSS, 0, 0},
 		{(void*)(uintptr_t)sgx_combiner, 0, 0},
+		{(void*)(uintptr_t)sgx_scalar_multi, 0, 0},
+		{(void*)(uintptr_t)sgx_createPoint, 0, 0},
+		{(void*)(uintptr_t)sgx_createEC, 0, 0},
 	}
 };
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[10][13];
+	uint8_t entry_table[10][16];
 } g_dyn_entry_table = {
 	10,
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 	}
 };
 

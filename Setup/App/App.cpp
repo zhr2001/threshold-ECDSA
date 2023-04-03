@@ -22,7 +22,7 @@
 #define _tmain main
 #define SS_OVER     "ffff1111"
 #define SS_BEGIN    "ffffffff"
-#define NODE_NUM 9
+#define NODE_NUM 8
 
 extern std::map<sgx_enclave_id_t, uint32_t> g_enclave_id_map;
 
@@ -36,6 +36,19 @@ typedef struct thread_para {
     int i;
     SS *ss;
 } t_para;
+
+point* publicKey;
+char* publicKeyStr;
+
+char* point2str(const point *p) {
+    char *Sx = mpz_get_str(nullptr, 16, p->x);
+    char *Sy = mpz_get_str(nullptr, 16, p->y);
+    char *res = (char *)malloc(strlen(Sx)+strlen(Sy)+2);
+    strncpy(res, Sx, strlen(Sx));
+    res[strlen(Sx)] = ' ';
+    strncpy(res+strlen(Sx)+1, Sy, strlen(Sy));
+    return res;
+}
 
 void waitForKeyPress()
 {
@@ -90,11 +103,13 @@ void* thread_function(void* args) {
     shmdt(str);
 
     key = ftok("../..", 17*i);
-    int shmid_msg3 = shmget(key, 32, 0666|IPC_CREAT);
+    int shmid_msg3 = shmget(key, 256, 0666|IPC_CREAT);
     printf("[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1\n");
     char *c_str = (char*)shmat(shmid_msg3, (void*)0, 0);
     char *S = mpz_get_str(nullptr, 16, ss->keyPartitions[i-1]);
     strncpy(c_str, S, strlen(S));
+    c_str[strlen(S)] = ' ';
+    strncpy(c_str+strlen(S)+1, publicKeyStr, strlen(publicKeyStr));
     printf("%d Secret sharing: %s\n", i, c_str);
     shmdt(c_str);
 
@@ -134,12 +149,14 @@ int _tmain(int argc, TCHAR* argv[]) {
     t_para p[NODE_NUM];
     pthread_mutex_init(&mutex,NULL); 
 
-    SS *ss;
+    publicKeySS *ss;
     Enclave_createSecretSharings(enclave_id, &ss);
 
+    publicKeyStr = point2str(ss->p);
+    publicKey = ss->p;
     for (int i = 0; i < NODE_NUM; i++) {
         p[i].i = i+1;
-        p[i].ss = ss;
+        p[i].ss = ss->privateKeySS;
         int ret = pthread_create(&tidp[i], NULL, thread_function, (void*)&p[i]);  
         if(ret!=0)  
         {  

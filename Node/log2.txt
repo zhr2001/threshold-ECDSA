@@ -1,5 +1,5 @@
 [Node 2] Get sequence: 2
-[TEST IPC 2] Receiving from Enclave1: 64554d7240cb7994af73d0546b0b5369f4508699e0d381c80e063b073efe0120
+[TEST IPC 2] Receiving from Enclave1: 
 [START 2] Testing create session between Enclave1 (Initiator) and Enclave2 (Responder)
 [Node] [ECALL] create_session()
 [Node] [ECALL] Initializing the session as session responder...
@@ -15,3 +15,4 @@
 [OCALL IPC] Passing message3 to shared memory for Enclave1
 [OCALL IPC] Waiting for Enclave1 to process message3...
 [END 2] Secure Channel Establishment between Initiator (E1) and Responder (E2) Enclaves successful !!!
+ and Responder (E2): Error code is 1

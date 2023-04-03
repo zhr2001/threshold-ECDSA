@@ -26,7 +26,7 @@ typedef struct ms_test_close_session_t {
 } ms_test_close_session_t;
 
 typedef struct ms_createSecretSharings_t {
-	SS* ms_retval;
+	publicKeySS* ms_retval;
 } ms_createSecretSharings_t;
 
 typedef struct ms_session_request_t {
@@ -87,6 +87,29 @@ typedef struct ms_combiner_t {
 	const DecryptoInfo* ms_secrets;
 	mpz_t* ms_modeP;
 } ms_combiner_t;
+
+typedef struct ms_scalar_multi_t {
+	point* ms_retval;
+	mpz_t* ms_k;
+	const point* ms_p;
+	const EC* ms_curve;
+} ms_scalar_multi_t;
+
+typedef struct ms_createPoint_t {
+	point* ms_retval;
+	char* ms_x;
+	char* ms_y;
+} ms_createPoint_t;
+
+typedef struct ms_createEC_t {
+	EC* ms_retval;
+	char* ms_p;
+	char* ms_n;
+	point* ms_G;
+	int ms_a;
+	int ms_b;
+	int ms_h;
+} ms_createEC_t;
 
 typedef struct ms_session_request_ocall_t {
 	uint32_t ms_retval;
@@ -296,7 +319,7 @@ sgx_status_t Enclave_test_close_session(sgx_enclave_id_t eid, uint32_t* retval, 
 	return status;
 }
 
-sgx_status_t Enclave_createSecretSharings(sgx_enclave_id_t eid, SS** retval)
+sgx_status_t Enclave_createSecretSharings(sgx_enclave_id_t eid, publicKeySS** retval)
 {
 	sgx_status_t status;
 	ms_createSecretSharings_t ms;
@@ -400,6 +423,44 @@ sgx_status_t Enclave_combiner(sgx_enclave_id_t eid, mpz_t** retval, const Decryp
 	ms.ms_secrets = secrets;
 	ms.ms_modeP = modeP;
 	status = sgx_ecall(eid, 12, &ocall_table_Enclave, &ms);
+	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
+	return status;
+}
+
+sgx_status_t Enclave_scalar_multi(sgx_enclave_id_t eid, point** retval, mpz_t* k, const point* p, const EC* curve)
+{
+	sgx_status_t status;
+	ms_scalar_multi_t ms;
+	ms.ms_k = k;
+	ms.ms_p = p;
+	ms.ms_curve = curve;
+	status = sgx_ecall(eid, 13, &ocall_table_Enclave, &ms);
+	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
+	return status;
+}
+
+sgx_status_t Enclave_createPoint(sgx_enclave_id_t eid, point** retval, char* x, char* y)
+{
+	sgx_status_t status;
+	ms_createPoint_t ms;
+	ms.ms_x = x;
+	ms.ms_y = y;
+	status = sgx_ecall(eid, 14, &ocall_table_Enclave, &ms);
+	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
+	return status;
+}
+
+sgx_status_t Enclave_createEC(sgx_enclave_id_t eid, EC** retval, char* p, char* n, point* G, int a, int b, int h)
+{
+	sgx_status_t status;
+	ms_createEC_t ms;
+	ms.ms_p = p;
+	ms.ms_n = n;
+	ms.ms_G = G;
+	ms.ms_a = a;
+	ms.ms_b = b;
+	ms.ms_h = h;
+	status = sgx_ecall(eid, 15, &ocall_table_Enclave, &ms);
 	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
 	return status;
 }

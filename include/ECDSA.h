@@ -2,6 +2,7 @@
 #define _ECDSA_H_
 
 #include "sgx_tgmp.h"
+#include "SecretSharing.h"
 
 typedef struct point {
     mpz_t x;
@@ -31,6 +32,11 @@ typedef struct EllipticCurve {
     point* BasePoint; 
 } EC;
 
+typedef struct publicKeySS {
+    point *p;
+    SS *privateKeySS;
+} publicKeySS;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,6 +44,12 @@ extern "C" {
 sign* sign_message(mpz_t* privateKey, const char *message, const EC *curve);
 
 int verifySignature(const point *publicKey, const char *message, const sign *signature, const EC *curve);
+
+point* scalar_multi(mpz_t* k, const point *p, const EC *curve); 
+
+point* createPoint(char *x, char *y);
+
+EC* createEC(char *p, char *n, point *G, int a, int b, int h);
 
 #ifdef __cplusplus
 }

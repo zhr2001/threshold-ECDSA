@@ -28,6 +28,9 @@ sign* sign_message(mpz_t* privateKey, const char* message, const EC* curve);
 int verifySignature(const point* publicKey, const char* message, const sign* signature, const EC* curve);
 SS* createSS(int threshold, int n, mpz_t* secret, mpz_t* modeP);
 mpz_t* combiner(const DecryptoInfo* secrets, mpz_t* modeP);
+point* scalar_multi(mpz_t* k, const point* p, const EC* curve);
+point* createPoint(char* x, char* y);
+EC* createEC(char* p, char* n, point* G, int a, int b, int h);
 
 sgx_status_t SGX_CDECL session_request_ocall(uint32_t* retval, sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id, sgx_dh_msg1_t* dh_msg1, uint32_t* session_id);
 sgx_status_t SGX_CDECL exchange_report_ocall(uint32_t* retval, sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id, sgx_dh_msg2_t* dh_msg2, sgx_dh_msg3_t* dh_msg3, uint32_t session_id);

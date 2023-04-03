@@ -1,5 +1,5 @@
 [Node 4] Get sequence: 4
-[TEST IPC 4] Receiving from Enclave1: 5cb15c5cda8828e08f861be2a3d33ea4810dfbd041d77aee40d97986f0419611
+[TEST IPC 4] Receiving from Enclave1: 5e3a442afefc56a09dc06fb5a28f8bed4cbb7846fee28bb156110dcba00fd7ff 4d35b088442e96274b01744d8a3f766881e5baa1cc6a4b99393b22fb30aa8d5d 84b29ffe68954e7d5c0af2a0088001923dd546dbcce52395303f17bc1acf1a8d
 [START 4] Testing create session between Enclave1 (Initiator) and Enclave2 (Responder)
 [Node] [ECALL] create_session()
 [Node] [ECALL] Initializing the session as session responder...

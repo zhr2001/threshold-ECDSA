@@ -41,7 +41,7 @@
 #include <map>
 
 #define UNUSED(val) (void)(val)
-#define NODE_NUM    9
+#define NODE_NUM    8
 #define THRESH      5
 #define MODE_P "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
 
@@ -368,7 +368,14 @@ static uint32_t e1_foo1_wrapper(ms_in_msg_exchange_t *ms,
     return SUCCESS;
 }
 
-SS* createSecretSharings() {
+publicKeySS* createSecretSharings() {
+    point *BP = createPoint(
+    "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798", 
+    "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
+    EC *group = createEC(
+    "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f", 
+    "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", 
+    BP, 0, 7, 1);
     mpz_t randomNumber2Secret, p;
     mpz_init(randomNumber2Secret);
     mpz_init_set_str(p, MODE_P, 16);
@@ -382,6 +389,10 @@ SS* createSecretSharings() {
         mpz_urandomb(randomNumber2Secret, state, 256);
     }
     SS *res = createSS(THRESH, NODE_NUM, &randomNumber2Secret, &p);
-    return res;
+    point *publickey = scalar_multi(&randomNumber2Secret, BP, group);
+    publicKeySS *p_SS = (publicKeySS *)malloc(1*sizeof (publicKeySS));
+    p_SS->privateKeySS = res;
+    mpz_init_set(p_SS->p->x, publickey->x);
+    mpz_init_set(p_SS->p->y, publickey->y);
+    return p_SS;
 }
-
