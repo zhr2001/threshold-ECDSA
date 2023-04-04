@@ -29,6 +29,7 @@ extern std::map<sgx_enclave_id_t, uint32_t> g_enclave_id_map;
 sgx_enclave_id_t enclave_id;
 
 pthread_mutex_t mutex;
+int cnt = 0;
 
 #define ENCLAVE_SETUP_NAME "libenclavesetup.so"
 
@@ -132,8 +133,9 @@ void* thread_function(void* args) {
     }
     shmctl(shmid_msg1, IPC_RMID, NULL);
     shmctl(shmid_msg3, IPC_RMID, NULL);
-
+    cnt += 1;
     pthread_mutex_unlock(&mutex);
+
     return nullptr;
 }
 
@@ -169,6 +171,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     {
         pthread_join(tidp[i], NULL);  //problem in this line
     }
+    while (cnt < NODE_NUM);
     
     key_t key = ftok("../..", 10);
     int shmid = shmget(key, 32, 0666|IPC_CREAT);
@@ -179,8 +182,5 @@ int _tmain(int argc, TCHAR* argv[]) {
     shmdt(str);
 
     sgx_destroy_enclave(enclave_id);
-
-    waitForKeyPress();
-
     return 0;
 }

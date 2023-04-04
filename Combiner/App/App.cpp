@@ -37,16 +37,6 @@ typedef struct thread_para {
     SS *ss;
 } t_para;
 
-char* point2str(const point *p) {
-    char *Sx = mpz_get_str(nullptr, 16, p->x);
-    char *Sy = mpz_get_str(nullptr, 16, p->y);
-    char *res = (char *)malloc(strlen(Sx)+strlen(Sy)+2);
-    strncpy(res, Sx, strlen(Sx));
-    res[strlen(Sx)] = ' ';
-    strncpy(res+strlen(Sx)+1, Sy, strlen(Sy));
-    return res;
-}
-
 void waitForKeyPress()
 {
     char ch;
@@ -140,6 +130,23 @@ int _tmain(int argc, TCHAR* argv[]) {
         printf("\nLoad Enclave Failure\n");
     }
 
+    key_t key = ftok("../..", 10);
+    int shmid = shmget(key, 32, 0666|IPC_CREAT);
+    while (1)
+    {
+        int flag = 0;
+        char *str = (char*)shmat(shmid, (void*)0, 0);
+        if (strcmp(SS_OVER, str) == 0) {
+            flag = 1;
+        }
+        shmdt(str);
+        if (flag) {
+            printf("[TEST IPC] Receiving from Enclave1: %s\n", SS_OVER);
+            break;
+        }
+    }
+    shmctl(shmid, IPC_RMID, NULL);    
+
     pthread_t tidp[NODE_NUM];
     t_para p[NODE_NUM];
     pthread_mutex_init(&mutex,NULL); 
@@ -162,18 +169,8 @@ int _tmain(int argc, TCHAR* argv[]) {
     {
         pthread_join(tidp[i], NULL);  //problem in this line
     }
-    
-    key_t key = ftok("../..", 10);
-    int shmid = shmget(key, 32, 0666|IPC_CREAT);
-    printf("shmid: %d\n", shmid);
-    char *str = (char*)shmat(shmid, (void*)0, 0);
-    printf("[TEST IPC] Sending to Node Enclave: SecretSharing over\n");
-    strncpy(str, SS_OVER, strlen(SS_OVER));
-    shmdt(str);
 
     sgx_destroy_enclave(enclave_id);
-
-    waitForKeyPress();
 
     return 0;
 }

@@ -36,6 +36,8 @@
 #include "../Enclave/Enclave_u.h"
 #include "sgx_eid.h"
 #include "sgx_urts.h"
+#include <assert.h>
+#include "../../include/ECDSA.h"
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
@@ -51,9 +53,11 @@
 #define _tmain  main
 #define SS_OVER     "ffff1111"
 #define SS_BEGIN    "ffffffff"
-#define NODE_NUM 11
+#define NODE_NUM 8
 
 sgx_enclave_id_t enclave_id = 0;
+mpz_t  privateKeySS;
+point* publicKey;
 
 #define ENCLAVE_PATH "libenclavenode.so"
 
@@ -76,6 +80,30 @@ uint32_t load_enclaves()
     }
 
     return SGX_SUCCESS;
+}
+
+void str2point(const char *s) {
+    char *Sx, *Sy;
+    int i, cnt = 0;
+    for (i = 0; i < strlen(s); i++) {
+        assert(s[i] == ' ' || (s[i] >= '0' && s[i] <= '9') || (s[i] >= 'a' && s[i] <= 'f'));
+        cnt += (s[i] == ' ');
+        assert(cnt < 2);
+    }
+    for (i = 0; i < strlen(s); i++) {
+        if (s[i] == ' ') break;
+    }
+    Sx = (char *)malloc((i+1)*sizeof(char));
+    Sy = (char *)malloc((strlen(s)-i)*sizeof(char));
+    for (int j = 0; j < i; j++) {
+        Sx[j] = s[j];
+    }
+    Sx[i] = '\0';
+    for (int j = i+1; j < strlen(s); j++) {
+        Sy[j-i-1] = s[j];
+    }
+    Sy[strlen(s)-i-1] = '\0';
+    Enclave_createPoint(enclave_id, &publicKey, Sx, Sy);
 }
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -110,7 +138,87 @@ int _tmain(int argc, _TCHAR* argv[])
     str = (char*)shmat(shmid, (void*)0, 0);
 
     printf("[TEST IPC %s] Receiving from Enclave1: %s\n", argv[1], str);
+    for (int i = 0; i < strlen(str); i++) {
+        if (str[i] == ' ') {
+            char *s1;
+            s1 = (char *)malloc(i+1);
+            for (int j = 0; j < i; j++) s1[j] = str[j];
+            s1[i] = '\0';
+            printf("Get privateKey SS: %s\n", s1);
+            str2point(str+i+1);
+            mpz_init_set_str(privateKeySS, s1, 16);
+            break;
+        }
+    }
+    shmdt(str);
+    shmctl(shmid, IPC_RMID, NULL);
 
+    do
+    {
+        printf("[START %s] Testing create session between Enclave1 (Initiator) and Enclave2 (Responder)\n", argv[1]);
+        status = Enclave_test_create_session(enclave_id, &ret_status, enclave_id, 0);
+        if (status!=SGX_SUCCESS)
+        {
+            printf("[END %s] test_create_session Ecall failed: Error code is %x\n", argv[1], status);
+            exit(-1);
+        }
+        else
+        {
+            if(ret_status==0)
+            {
+                printf("[END %s] Secure Channel Establishment between Initiator (E1) and Responder (E2) Enclaves successful !!!\n", argv[1]);
+            }
+            else
+            {
+                printf("[END %s] Session establishment and key exchange failure between Initiator (E1) and Responder (E2): Error code is %x\n", argv[1], ret_status);
+                exit(-1);
+            }
+        }
+
+        // key_t key = ftok("../..", 10);
+        // int shmid = shmget(key, 32, 0666|IPC_CREAT);
+        // printf("shmid: %d\n", shmid);
+        // while (1)
+        // {
+        //     char *str = (char*)shmat(shmid, (void*)0, 0);
+        //     if (strcmp(SS_OVER, str) == 0) {break; printf("[TEST IPC] Receiving from Enclave1: %s\n", str);}
+        // }
+        // shmdt(str);
+        // shmctl(shmid, IPC_RMID, NULL);
+
+    
+
+#pragma warning (push)
+#pragma warning (disable : 4127)
+    }while(0);
+#pragma warning (pop)
+
+    key = ftok("../..", 13*atoi(argv[1]));
+    shmid_msg1 = shmget(key, 32, 0666|IPC_CREAT);
+    while (1)
+    {
+        int flag = 0;
+        str = (char*)shmat(shmid_msg1, (void*)0, 0);
+        if (atoi(str) == atoi(argv[1])) {
+            flag = 1;
+        }
+        shmdt(str);
+        if (flag) break;
+    }
+    printf("[Node %s] Get sequence: %s\n", argv[1], argv[1]);
+    shmctl(shmid_msg1, IPC_RMID, NULL);
+
+    key = ftok("../..", 17*atoi(argv[1]));
+    shmid = shmget(key, 512, 0666 | IPC_CREAT);
+    str = (char*)shmat(shmid, (void*)0, 0);
+
+    printf("[TEST IPC %s] Receiving from Enclave1: %s\n", argv[1], str);
+
+    mpz_t zeroVal;
+    mpz_init_set_str(zeroVal, str, 16);
+    mpz_add(privateKeySS, privateKeySS, zeroVal);
+    char *S = mpz_get_str(nullptr, 16, privateKeySS);
+    printf("Now the privateKeyss = %s\n", S);
     shmdt(str);
     shmctl(shmid, IPC_RMID, NULL);
 
@@ -134,18 +242,7 @@ int _tmain(int argc, _TCHAR* argv[])
                 printf("[END %s] Session establishment and key exchange failure between Initiator (E1) and Responder (E2): Error code is %x\n", argv[1], ret_status);
                 break;
             }
-        }
-
-        // key_t key = ftok("../..", 10);
-        // int shmid = shmget(key, 32, 0666|IPC_CREAT);
-        // printf("shmid: %d\n", shmid);
-        // while (1)
-        // {
-        //     char *str = (char*)shmat(shmid, (void*)0, 0);
-        //     if (strcmp(SS_OVER, str) == 0) {break; printf("[TEST IPC] Receiving from Enclave1: %s\n", str);}
-        // }
-        // shmdt(str);
-        // shmctl(shmid, IPC_RMID, NULL);
+        }    
 
 #pragma warning (push)
 #pragma warning (disable : 4127)

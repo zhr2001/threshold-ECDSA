@@ -55,6 +55,12 @@ typedef struct ms_end_session_t {
 	sgx_enclave_id_t ms_src_enclave_id;
 } ms_end_session_t;
 
+typedef struct ms_createPoint_t {
+	point* ms_retval;
+	char* ms_Sx;
+	char* ms_Sy;
+} ms_createPoint_t;
+
 typedef struct ms_session_request_ocall_t {
 	uint32_t ms_retval;
 	sgx_enclave_id_t ms_src_enclave_id;
@@ -309,6 +315,17 @@ sgx_status_t Enclave_end_session(sgx_enclave_id_t eid, uint32_t* retval, sgx_enc
 	ms_end_session_t ms;
 	ms.ms_src_enclave_id = src_enclave_id;
 	status = sgx_ecall(eid, 7, &ocall_table_Enclave, &ms);
+	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
+	return status;
+}
+
+sgx_status_t Enclave_createPoint(sgx_enclave_id_t eid, point** retval, char* Sx, char* Sy)
+{
+	sgx_status_t status;
+	ms_createPoint_t ms;
+	ms.ms_Sx = Sx;
+	ms.ms_Sy = Sy;
+	status = sgx_ecall(eid, 8, &ocall_table_Enclave, &ms);
 	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
 	return status;
 }

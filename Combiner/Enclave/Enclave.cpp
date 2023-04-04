@@ -378,6 +378,7 @@ SS* createZeroSecretSharings() {
     BP, 0, 7, 1);
     mpz_t ZeroSecret, p;
     mpz_init_set_d(ZeroSecret, 0);
+    mpz_init_set_str(p, MODE_P, 16);
     SS *res = createSS(THRESH, NODE_NUM, &ZeroSecret, &p);
     return res;
 }

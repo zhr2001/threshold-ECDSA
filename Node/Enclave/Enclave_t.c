@@ -81,6 +81,12 @@ typedef struct ms_end_session_t {
 	sgx_enclave_id_t ms_src_enclave_id;
 } ms_end_session_t;
 
+typedef struct ms_createPoint_t {
+	point* ms_retval;
+	char* ms_Sx;
+	char* ms_Sy;
+} ms_createPoint_t;
+
 typedef struct ms_session_request_ocall_t {
 	uint32_t ms_retval;
 	sgx_enclave_id_t ms_src_enclave_id;
@@ -489,11 +495,88 @@ err:
 	return status;
 }
 
+static sgx_status_t SGX_CDECL sgx_createPoint(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_createPoint_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_createPoint_t* ms = SGX_CAST(ms_createPoint_t*, pms);
+	ms_createPoint_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_createPoint_t), ms, sizeof(ms_createPoint_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	char* _tmp_Sx = __in_ms.ms_Sx;
+	size_t _len_Sx = sizeof(char);
+	char* _in_Sx = NULL;
+	char* _tmp_Sy = __in_ms.ms_Sy;
+	size_t _len_Sy = sizeof(char);
+	char* _in_Sy = NULL;
+	point* _in_retval;
+
+	CHECK_UNIQUE_POINTER(_tmp_Sx, _len_Sx);
+	CHECK_UNIQUE_POINTER(_tmp_Sy, _len_Sy);
+
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+
+	if (_tmp_Sx != NULL && _len_Sx != 0) {
+		if ( _len_Sx % sizeof(*_tmp_Sx) != 0)
+		{
+			status = SGX_ERROR_INVALID_PARAMETER;
+			goto err;
+		}
+		_in_Sx = (char*)malloc(_len_Sx);
+		if (_in_Sx == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_Sx, _len_Sx, _tmp_Sx, _len_Sx)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	if (_tmp_Sy != NULL && _len_Sy != 0) {
+		if ( _len_Sy % sizeof(*_tmp_Sy) != 0)
+		{
+			status = SGX_ERROR_INVALID_PARAMETER;
+			goto err;
+		}
+		_in_Sy = (char*)malloc(_len_Sy);
+		if (_in_Sy == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_Sy, _len_Sy, _tmp_Sy, _len_Sy)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	_in_retval = createPoint(_in_Sx, _in_Sy);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	if (_in_Sx) free(_in_Sx);
+	if (_in_Sy) free(_in_Sy);
+	return status;
+}
+
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[8];
+	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[9];
 } g_ecall_table = {
-	8,
+	9,
 	{
 		{(void*)(uintptr_t)sgx_test_create_session, 0, 0},
 		{(void*)(uintptr_t)sgx_test_enclave_to_enclave_call, 0, 0},
@@ -503,25 +586,26 @@ SGX_EXTERNC const struct {
 		{(void*)(uintptr_t)sgx_exchange_report, 0, 0},
 		{(void*)(uintptr_t)sgx_generate_response, 0, 0},
 		{(void*)(uintptr_t)sgx_end_session, 0, 0},
+		{(void*)(uintptr_t)sgx_createPoint, 0, 0},
 	}
 };
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[10][8];
+	uint8_t entry_table[10][9];
 } g_dyn_entry_table = {
 	10,
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
 	}
 };
 

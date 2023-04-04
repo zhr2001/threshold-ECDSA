@@ -372,27 +372,3 @@ int verifySignature(const point *publicKey, const char *message, const sign *sig
 sign* sign_message(mpz_t* privateKey, const char *message, const EC *curve) {
     return sign_message(*privateKey, message, curve);
 }
-
-point* str2point(const char *s) {
-    char *Sx, *Sy;
-    int i, cnt = 0;
-    for (i = 0; i < strlen(s); i++) {
-        assert(s[i] == ',' || (s[i] >= '0' && s[i] <= '9') || (s[i] >= 'a' && s[i] <= 'f'));
-        cnt += (s[i] == ',');
-        assert(cnt < 2);
-    }
-    for (i = 0; i < strlen(s); i++) {
-        if (s[i] == ',') break;
-    }
-    Sx = (char *)malloc((i+1)*sizeof(char));
-    Sy = (char *)malloc((strlen(s)-i)*sizeof(char));
-    for (int j = 0; j < i; j++) {
-        Sx[j] = s[j];
-    }
-    Sx[i] = '\0';
-    for (int j = i+1; j < strlen(s); j++) {
-        Sy[j-i-1] = s[j];
-    }
-    Sy[strlen(s)-i-1] = '\0';
-    return createPoint(Sx, Sy);
-}
