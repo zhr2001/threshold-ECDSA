@@ -51,6 +51,10 @@ point* createPoint(char *x, char *y);
 
 EC* createEC(char *p, char *n, point *G, int a, int b, int h);
 
+mpz_t* hash_message(const char *message, int length, const EC *curve);
+
+mpz_t* inverse_mod(const mpz_t *k, const mpz_t *p);
+
 #ifdef __cplusplus
 }
 #endif

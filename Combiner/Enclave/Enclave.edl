@@ -39,7 +39,14 @@ enclave {
             public uint32_t test_message_exchange(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id);
             public uint32_t test_close_session(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id);
 
-            public SS* createZeroSecretSharings();
+            public void init();
+            public SS* createZeroSecretSharings(int factor);
+            public SS* createRandomSecretSharings(int factor);
+            public mpz_t* DecryptoSS([user_check] SS* source, int factor);
+            public point* DecryptoGA([user_check] mpz_t *source);
+            public point* getRxy([user_check] const mpz_t *u, [user_check] const point *beta);
+            public void mod([user_check] mpz_t *r);
+            public mpz_t* hash([user_check] const char *message, int len);
     };
 
 };

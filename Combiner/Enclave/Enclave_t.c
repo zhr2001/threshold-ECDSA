@@ -53,7 +53,40 @@ typedef struct ms_test_close_session_t {
 
 typedef struct ms_createZeroSecretSharings_t {
 	SS* ms_retval;
+	int ms_factor;
 } ms_createZeroSecretSharings_t;
+
+typedef struct ms_createRandomSecretSharings_t {
+	SS* ms_retval;
+	int ms_factor;
+} ms_createRandomSecretSharings_t;
+
+typedef struct ms_DecryptoSS_t {
+	mpz_t* ms_retval;
+	SS* ms_source;
+	int ms_factor;
+} ms_DecryptoSS_t;
+
+typedef struct ms_DecryptoGA_t {
+	point* ms_retval;
+	mpz_t* ms_source;
+} ms_DecryptoGA_t;
+
+typedef struct ms_getRxy_t {
+	point* ms_retval;
+	const mpz_t* ms_u;
+	const point* ms_beta;
+} ms_getRxy_t;
+
+typedef struct ms_mod_t {
+	mpz_t* ms_r;
+} ms_mod_t;
+
+typedef struct ms_hash_t {
+	mpz_t* ms_retval;
+	const char* ms_message;
+	int ms_len;
+} ms_hash_t;
 
 typedef struct ms_session_request_t {
 	uint32_t ms_retval;
@@ -136,6 +169,19 @@ typedef struct ms_createEC_t {
 	int ms_b;
 	int ms_h;
 } ms_createEC_t;
+
+typedef struct ms_inverse_mod_t {
+	mpz_t* ms_retval;
+	const mpz_t* ms_k;
+	const mpz_t* ms_p;
+} ms_inverse_mod_t;
+
+typedef struct ms_hash_message_t {
+	mpz_t* ms_retval;
+	const char* ms_message;
+	int ms_length;
+	const EC* ms_curve;
+} ms_hash_message_t;
 
 typedef struct ms_session_request_ocall_t {
 	uint32_t ms_retval;
@@ -307,6 +353,14 @@ err:
 	return status;
 }
 
+static sgx_status_t SGX_CDECL sgx_init(void* pms)
+{
+	sgx_status_t status = SGX_SUCCESS;
+	if (pms != NULL) return SGX_ERROR_INVALID_PARAMETER;
+	init();
+	return status;
+}
+
 static sgx_status_t SGX_CDECL sgx_createZeroSecretSharings(void* pms)
 {
 	CHECK_REF_POINTER(pms, sizeof(ms_createZeroSecretSharings_t));
@@ -323,7 +377,164 @@ static sgx_status_t SGX_CDECL sgx_createZeroSecretSharings(void* pms)
 	SS* _in_retval;
 
 
-	_in_retval = createZeroSecretSharings();
+	_in_retval = createZeroSecretSharings(__in_ms.ms_factor);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_createRandomSecretSharings(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_createRandomSecretSharings_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_createRandomSecretSharings_t* ms = SGX_CAST(ms_createRandomSecretSharings_t*, pms);
+	ms_createRandomSecretSharings_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_createRandomSecretSharings_t), ms, sizeof(ms_createRandomSecretSharings_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	SS* _in_retval;
+
+
+	_in_retval = createRandomSecretSharings(__in_ms.ms_factor);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_DecryptoSS(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_DecryptoSS_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_DecryptoSS_t* ms = SGX_CAST(ms_DecryptoSS_t*, pms);
+	ms_DecryptoSS_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_DecryptoSS_t), ms, sizeof(ms_DecryptoSS_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	SS* _tmp_source = __in_ms.ms_source;
+	mpz_t* _in_retval;
+
+
+	_in_retval = DecryptoSS(_tmp_source, __in_ms.ms_factor);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_DecryptoGA(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_DecryptoGA_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_DecryptoGA_t* ms = SGX_CAST(ms_DecryptoGA_t*, pms);
+	ms_DecryptoGA_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_DecryptoGA_t), ms, sizeof(ms_DecryptoGA_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	mpz_t* _tmp_source = __in_ms.ms_source;
+	point* _in_retval;
+
+
+	_in_retval = DecryptoGA(_tmp_source);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_getRxy(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_getRxy_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_getRxy_t* ms = SGX_CAST(ms_getRxy_t*, pms);
+	ms_getRxy_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_getRxy_t), ms, sizeof(ms_getRxy_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	const mpz_t* _tmp_u = __in_ms.ms_u;
+	const point* _tmp_beta = __in_ms.ms_beta;
+	point* _in_retval;
+
+
+	_in_retval = getRxy((const mpz_t*)_tmp_u, (const point*)_tmp_beta);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_mod(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_mod_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_mod_t* ms = SGX_CAST(ms_mod_t*, pms);
+	ms_mod_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_mod_t), ms, sizeof(ms_mod_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	mpz_t* _tmp_r = __in_ms.ms_r;
+
+
+	mod(_tmp_r);
+
+
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_hash(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_hash_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_hash_t* ms = SGX_CAST(ms_hash_t*, pms);
+	ms_hash_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_hash_t), ms, sizeof(ms_hash_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	const char* _tmp_message = __in_ms.ms_message;
+	mpz_t* _in_retval;
+
+
+	_in_retval = hash((const char*)_tmp_message, __in_ms.ms_len);
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
@@ -1160,17 +1371,163 @@ err:
 	return status;
 }
 
+static sgx_status_t SGX_CDECL sgx_inverse_mod(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_inverse_mod_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_inverse_mod_t* ms = SGX_CAST(ms_inverse_mod_t*, pms);
+	ms_inverse_mod_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_inverse_mod_t), ms, sizeof(ms_inverse_mod_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	const mpz_t* _tmp_k = __in_ms.ms_k;
+	size_t _len_k = sizeof(mpz_t);
+	mpz_t* _in_k = NULL;
+	const mpz_t* _tmp_p = __in_ms.ms_p;
+	size_t _len_p = sizeof(mpz_t);
+	mpz_t* _in_p = NULL;
+	mpz_t* _in_retval;
+
+	CHECK_UNIQUE_POINTER(_tmp_k, _len_k);
+	CHECK_UNIQUE_POINTER(_tmp_p, _len_p);
+
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+
+	if (_tmp_k != NULL && _len_k != 0) {
+		_in_k = (mpz_t*)malloc(_len_k);
+		if (_in_k == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_k, _len_k, _tmp_k, _len_k)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	if (_tmp_p != NULL && _len_p != 0) {
+		_in_p = (mpz_t*)malloc(_len_p);
+		if (_in_p == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_p, _len_p, _tmp_p, _len_p)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	_in_retval = inverse_mod((const mpz_t*)_in_k, (const mpz_t*)_in_p);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	if (_in_k) free(_in_k);
+	if (_in_p) free(_in_p);
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_hash_message(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_hash_message_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_hash_message_t* ms = SGX_CAST(ms_hash_message_t*, pms);
+	ms_hash_message_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_hash_message_t), ms, sizeof(ms_hash_message_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	const char* _tmp_message = __in_ms.ms_message;
+	size_t _len_message = sizeof(char);
+	char* _in_message = NULL;
+	const EC* _tmp_curve = __in_ms.ms_curve;
+	size_t _len_curve = sizeof(EC);
+	EC* _in_curve = NULL;
+	mpz_t* _in_retval;
+
+	CHECK_UNIQUE_POINTER(_tmp_message, _len_message);
+	CHECK_UNIQUE_POINTER(_tmp_curve, _len_curve);
+
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+
+	if (_tmp_message != NULL && _len_message != 0) {
+		if ( _len_message % sizeof(*_tmp_message) != 0)
+		{
+			status = SGX_ERROR_INVALID_PARAMETER;
+			goto err;
+		}
+		_in_message = (char*)malloc(_len_message);
+		if (_in_message == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_message, _len_message, _tmp_message, _len_message)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	if (_tmp_curve != NULL && _len_curve != 0) {
+		_in_curve = (EC*)malloc(_len_curve);
+		if (_in_curve == NULL) {
+			status = SGX_ERROR_OUT_OF_MEMORY;
+			goto err;
+		}
+
+		if (memcpy_s(_in_curve, _len_curve, _tmp_curve, _len_curve)) {
+			status = SGX_ERROR_UNEXPECTED;
+			goto err;
+		}
+
+	}
+	_in_retval = hash_message((const char*)_in_message, __in_ms.ms_length, (const EC*)_in_curve);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	if (_in_message) free(_in_message);
+	if (_in_curve) free(_in_curve);
+	return status;
+}
+
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[16];
+	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[25];
 } g_ecall_table = {
-	16,
+	25,
 	{
 		{(void*)(uintptr_t)sgx_test_create_session, 0, 0},
 		{(void*)(uintptr_t)sgx_test_enclave_to_enclave_call, 0, 0},
 		{(void*)(uintptr_t)sgx_test_message_exchange, 0, 0},
 		{(void*)(uintptr_t)sgx_test_close_session, 0, 0},
+		{(void*)(uintptr_t)sgx_init, 0, 0},
 		{(void*)(uintptr_t)sgx_createZeroSecretSharings, 0, 0},
+		{(void*)(uintptr_t)sgx_createRandomSecretSharings, 0, 0},
+		{(void*)(uintptr_t)sgx_DecryptoSS, 0, 0},
+		{(void*)(uintptr_t)sgx_DecryptoGA, 0, 0},
+		{(void*)(uintptr_t)sgx_getRxy, 0, 0},
+		{(void*)(uintptr_t)sgx_mod, 0, 0},
+		{(void*)(uintptr_t)sgx_hash, 0, 0},
 		{(void*)(uintptr_t)sgx_session_request, 0, 0},
 		{(void*)(uintptr_t)sgx_exchange_report, 0, 0},
 		{(void*)(uintptr_t)sgx_generate_response, 0, 0},
@@ -1182,25 +1539,27 @@ SGX_EXTERNC const struct {
 		{(void*)(uintptr_t)sgx_scalar_multi, 0, 0},
 		{(void*)(uintptr_t)sgx_createPoint, 0, 0},
 		{(void*)(uintptr_t)sgx_createEC, 0, 0},
+		{(void*)(uintptr_t)sgx_inverse_mod, 0, 0},
+		{(void*)(uintptr_t)sgx_hash_message, 0, 0},
 	}
 };
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[10][16];
+	uint8_t entry_table[10][25];
 } g_dyn_entry_table = {
 	10,
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 	}
 };
 

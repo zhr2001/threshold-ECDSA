@@ -1,0 +1,1 @@
+cd Setup && source /opt/intel/sgxsdk/environment && ./app > setuplog.txt &

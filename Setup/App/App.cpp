@@ -23,6 +23,7 @@
 #define SS_OVER     "ffff1111"
 #define SS_BEGIN    "ffffffff"
 #define NODE_NUM 8
+#define DEBUG 1
 
 extern std::map<sgx_enclave_id_t, uint32_t> g_enclave_id_map;
 
@@ -114,6 +115,7 @@ void* thread_function(void* args) {
     printf("%d Secret sharing: %s\n", i, c_str);
     shmdt(c_str);
 
+    if (DEBUG) goto sleep;
     printf("[START] Testing create session between SetUp Enclave and Node Enclave\n");
     status = Enclave_test_create_session(enclave_id, &ret_status, enclave_id, 0);
     status = SGX_SUCCESS;
@@ -131,6 +133,9 @@ void* thread_function(void* args) {
             printf("[END %d] Session establishment and key exchange failure between SetUp and Node: Error code is %x\n", i, ret_status);
         }
     }
+sleep:
+    sleep(1);
+    
     shmctl(shmid_msg1, IPC_RMID, NULL);
     shmctl(shmid_msg3, IPC_RMID, NULL);
     cnt += 1;

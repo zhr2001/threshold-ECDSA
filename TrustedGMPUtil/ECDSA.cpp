@@ -122,6 +122,11 @@ mpz_t* inverse_mod(const mpz_t k, const mpz_t p) {
     return temp;
 }
 
+mpz_t* inverse_mod(const mpz_t *k, const mpz_t *p) {
+    return inverse_mod(*k, *p);
+}
+
+
 int is_on_curve(const point *p, const EC *curve) {
     assert(curve != nullptr);
     if (p == nullptr) return 1;

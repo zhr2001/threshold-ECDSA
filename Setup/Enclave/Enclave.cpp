@@ -42,7 +42,7 @@
 
 #define UNUSED(val) (void)(val)
 #define NODE_NUM    8
-#define THRESH      5
+#define THRESH      3
 #define MODE_P "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
 
 std::map<sgx_enclave_id_t, dh_session_t>g_src_session_info_map;

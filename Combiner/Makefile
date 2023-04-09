@@ -281,4 +281,4 @@ $(Enclave_Name): Enclave.so
 .PHONY: clean
 
 clean:
-	@rm -rf .config_* $(App_Name) *.so *.a App/*.o Enclave/*.o Enclave/*_t.* Enclave/*_u.* ./TrustedUtil/*.o ../untrustedUtil/*.o ./TrustedUtil/*_t.* ./UntrustedUtil/*.o
+	@rm -rf .config_* $(App_Name) *.so *.a App/*.o Enclave/*.o Enclave/*_t.* Enclave/*_u.* ./TrustedUtil/*.o ../TrustedGMPUtil/*.o ./TrustedUtil/*_t.* ./UntrustedUtil/*.o

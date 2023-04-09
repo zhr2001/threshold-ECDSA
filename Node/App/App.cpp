@@ -53,7 +53,9 @@
 #define _tmain  main
 #define SS_OVER     "ffff1111"
 #define SS_BEGIN    "ffffffff"
+#define message     "Hello!"
 #define NODE_NUM 8
+#define DEBUG 1
 
 sgx_enclave_id_t enclave_id = 0;
 mpz_t  privateKeySS;
@@ -153,6 +155,7 @@ int _tmain(int argc, _TCHAR* argv[])
     shmdt(str);
     shmctl(shmid, IPC_RMID, NULL);
 
+    if (DEBUG) goto sleep1;
     do
     {
         printf("[START %s] Testing create session between Enclave1 (Initiator) and Enclave2 (Responder)\n", argv[1]);
@@ -171,7 +174,6 @@ int _tmain(int argc, _TCHAR* argv[])
             else
             {
                 printf("[END %s] Session establishment and key exchange failure between Initiator (E1) and Responder (E2): Error code is %x\n", argv[1], ret_status);
-                exit(-1);
             }
         }
 
@@ -192,6 +194,8 @@ int _tmain(int argc, _TCHAR* argv[])
 #pragma warning (disable : 4127)
     }while(0);
 #pragma warning (pop)
+sleep1:
+    sleep(1);
 
     key = ftok("../..", 13*atoi(argv[1]));
     shmid_msg1 = shmget(key, 32, 0666|IPC_CREAT);
@@ -222,6 +226,7 @@ int _tmain(int argc, _TCHAR* argv[])
     shmdt(str);
     shmctl(shmid, IPC_RMID, NULL);
 
+    if (DEBUG) goto sleep2;
     do
     {
         printf("[START %s] Testing create session between Enclave1 (Initiator) and Enclave2 (Responder)\n", argv[1]);
@@ -248,6 +253,32 @@ int _tmain(int argc, _TCHAR* argv[])
 #pragma warning (disable : 4127)
     }while(0);
 #pragma warning (pop)
+
+sleep2:
+    sleep(1);
+    
+    key = ftok("../..", 13*atoi(argv[1]));
+    shmid_msg1 = shmget(key, 32, 0666|IPC_CREAT);
+    while (1)
+    {
+        int flag = 0;
+        str = (char*)shmat(shmid_msg1, (void*)0, 0);
+        if (atoi(str) == atoi(argv[1])) {
+            flag = 1;
+        }
+        shmdt(str);
+        if (flag) break;
+    }
+    printf("[Node## %s] Get sequence: %s\n", argv[1], argv[1]);
+    shmctl(shmid_msg1, IPC_RMID, NULL);
+
+    key = ftok("../..", 17*atoi(argv[1]));
+    shmid = shmget(key, 1024, 0666 | IPC_CREAT);
+    str = (char*)shmat(shmid, (void*)0, 0);
+
+    printf("[TEST IPC## %s] Receiving from Enclave1: %s\n", argv[1], str);
+    shmdt(str);
+    shmctl(shmid, IPC_RMID, NULL);
 
     sgx_destroy_enclave(enclave_id);
 

@@ -109,6 +109,19 @@ typedef struct ms_createEC_t {
 	int ms_h;
 } ms_createEC_t;
 
+typedef struct ms_inverse_mod_t {
+	mpz_t* ms_retval;
+	const mpz_t* ms_k;
+	const mpz_t* ms_p;
+} ms_inverse_mod_t;
+
+typedef struct ms_hash_message_t {
+	mpz_t* ms_retval;
+	const char* ms_message;
+	int ms_length;
+	const EC* ms_curve;
+} ms_hash_message_t;
+
 typedef struct ms_session_request_ocall_t {
 	uint32_t ms_retval;
 	sgx_enclave_id_t ms_src_enclave_id;
@@ -399,79 +412,18 @@ static sgx_status_t SGX_CDECL sgx_sign_message(void* pms)
 	}
 	sgx_status_t status = SGX_SUCCESS;
 	mpz_t* _tmp_privateKey = __in_ms.ms_privateKey;
-	size_t _len_privateKey = sizeof(mpz_t);
-	mpz_t* _in_privateKey = NULL;
 	const char* _tmp_message = __in_ms.ms_message;
-	size_t _len_message = sizeof(char);
-	char* _in_message = NULL;
 	const EC* _tmp_curve = __in_ms.ms_curve;
-	size_t _len_curve = sizeof(EC);
-	EC* _in_curve = NULL;
 	sign* _in_retval;
 
-	CHECK_UNIQUE_POINTER(_tmp_privateKey, _len_privateKey);
-	CHECK_UNIQUE_POINTER(_tmp_message, _len_message);
-	CHECK_UNIQUE_POINTER(_tmp_curve, _len_curve);
 
-	//
-	// fence after pointer checks
-	//
-	sgx_lfence();
-
-	if (_tmp_privateKey != NULL && _len_privateKey != 0) {
-		_in_privateKey = (mpz_t*)malloc(_len_privateKey);
-		if (_in_privateKey == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_privateKey, _len_privateKey, _tmp_privateKey, _len_privateKey)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_message != NULL && _len_message != 0) {
-		if ( _len_message % sizeof(*_tmp_message) != 0)
-		{
-			status = SGX_ERROR_INVALID_PARAMETER;
-			goto err;
-		}
-		_in_message = (char*)malloc(_len_message);
-		if (_in_message == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_message, _len_message, _tmp_message, _len_message)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_curve != NULL && _len_curve != 0) {
-		_in_curve = (EC*)malloc(_len_curve);
-		if (_in_curve == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_curve, _len_curve, _tmp_curve, _len_curve)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	_in_retval = sign_message(_in_privateKey, (const char*)_in_message, (const EC*)_in_curve);
+	_in_retval = sign_message(_tmp_privateKey, (const char*)_tmp_message, (const EC*)_tmp_curve);
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
 	}
 
 err:
-	if (_in_privateKey) free(_in_privateKey);
-	if (_in_message) free(_in_message);
-	if (_in_curve) free(_in_curve);
 	return status;
 }
 
@@ -489,97 +441,19 @@ static sgx_status_t SGX_CDECL sgx_verifySignature(void* pms)
 	}
 	sgx_status_t status = SGX_SUCCESS;
 	const point* _tmp_publicKey = __in_ms.ms_publicKey;
-	size_t _len_publicKey = sizeof(point);
-	point* _in_publicKey = NULL;
 	const char* _tmp_message = __in_ms.ms_message;
-	size_t _len_message = sizeof(char);
-	char* _in_message = NULL;
 	const sign* _tmp_signature = __in_ms.ms_signature;
-	size_t _len_signature = sizeof(sign);
-	sign* _in_signature = NULL;
 	const EC* _tmp_curve = __in_ms.ms_curve;
-	size_t _len_curve = sizeof(EC);
-	EC* _in_curve = NULL;
 	int _in_retval;
 
-	CHECK_UNIQUE_POINTER(_tmp_publicKey, _len_publicKey);
-	CHECK_UNIQUE_POINTER(_tmp_message, _len_message);
-	CHECK_UNIQUE_POINTER(_tmp_signature, _len_signature);
-	CHECK_UNIQUE_POINTER(_tmp_curve, _len_curve);
 
-	//
-	// fence after pointer checks
-	//
-	sgx_lfence();
-
-	if (_tmp_publicKey != NULL && _len_publicKey != 0) {
-		_in_publicKey = (point*)malloc(_len_publicKey);
-		if (_in_publicKey == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_publicKey, _len_publicKey, _tmp_publicKey, _len_publicKey)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_message != NULL && _len_message != 0) {
-		if ( _len_message % sizeof(*_tmp_message) != 0)
-		{
-			status = SGX_ERROR_INVALID_PARAMETER;
-			goto err;
-		}
-		_in_message = (char*)malloc(_len_message);
-		if (_in_message == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_message, _len_message, _tmp_message, _len_message)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_signature != NULL && _len_signature != 0) {
-		_in_signature = (sign*)malloc(_len_signature);
-		if (_in_signature == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_signature, _len_signature, _tmp_signature, _len_signature)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_curve != NULL && _len_curve != 0) {
-		_in_curve = (EC*)malloc(_len_curve);
-		if (_in_curve == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_curve, _len_curve, _tmp_curve, _len_curve)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	_in_retval = verifySignature((const point*)_in_publicKey, (const char*)_in_message, (const sign*)_in_signature, (const EC*)_in_curve);
+	_in_retval = verifySignature((const point*)_tmp_publicKey, (const char*)_tmp_message, (const sign*)_tmp_signature, (const EC*)_tmp_curve);
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
 	}
 
 err:
-	if (_in_publicKey) free(_in_publicKey);
-	if (_in_message) free(_in_message);
-	if (_in_signature) free(_in_signature);
-	if (_in_curve) free(_in_curve);
 	return status;
 }
 
@@ -597,56 +471,17 @@ static sgx_status_t SGX_CDECL sgx_createSS(void* pms)
 	}
 	sgx_status_t status = SGX_SUCCESS;
 	mpz_t* _tmp_secret = __in_ms.ms_secret;
-	size_t _len_secret = sizeof(mpz_t);
-	mpz_t* _in_secret = NULL;
 	mpz_t* _tmp_modeP = __in_ms.ms_modeP;
-	size_t _len_modeP = sizeof(mpz_t);
-	mpz_t* _in_modeP = NULL;
 	SS* _in_retval;
 
-	CHECK_UNIQUE_POINTER(_tmp_secret, _len_secret);
-	CHECK_UNIQUE_POINTER(_tmp_modeP, _len_modeP);
 
-	//
-	// fence after pointer checks
-	//
-	sgx_lfence();
-
-	if (_tmp_secret != NULL && _len_secret != 0) {
-		_in_secret = (mpz_t*)malloc(_len_secret);
-		if (_in_secret == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_secret, _len_secret, _tmp_secret, _len_secret)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_modeP != NULL && _len_modeP != 0) {
-		_in_modeP = (mpz_t*)malloc(_len_modeP);
-		if (_in_modeP == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_modeP, _len_modeP, _tmp_modeP, _len_modeP)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	_in_retval = createSS(__in_ms.ms_threshold, __in_ms.ms_n, _in_secret, _in_modeP);
+	_in_retval = createSS(__in_ms.ms_threshold, __in_ms.ms_n, _tmp_secret, _tmp_modeP);
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
 	}
 
 err:
-	if (_in_secret) free(_in_secret);
-	if (_in_modeP) free(_in_modeP);
 	return status;
 }
 
@@ -664,56 +499,17 @@ static sgx_status_t SGX_CDECL sgx_combiner(void* pms)
 	}
 	sgx_status_t status = SGX_SUCCESS;
 	const DecryptoInfo* _tmp_secrets = __in_ms.ms_secrets;
-	size_t _len_secrets = sizeof(DecryptoInfo);
-	DecryptoInfo* _in_secrets = NULL;
 	mpz_t* _tmp_modeP = __in_ms.ms_modeP;
-	size_t _len_modeP = sizeof(mpz_t);
-	mpz_t* _in_modeP = NULL;
 	mpz_t* _in_retval;
 
-	CHECK_UNIQUE_POINTER(_tmp_secrets, _len_secrets);
-	CHECK_UNIQUE_POINTER(_tmp_modeP, _len_modeP);
 
-	//
-	// fence after pointer checks
-	//
-	sgx_lfence();
-
-	if (_tmp_secrets != NULL && _len_secrets != 0) {
-		_in_secrets = (DecryptoInfo*)malloc(_len_secrets);
-		if (_in_secrets == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_secrets, _len_secrets, _tmp_secrets, _len_secrets)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_modeP != NULL && _len_modeP != 0) {
-		_in_modeP = (mpz_t*)malloc(_len_modeP);
-		if (_in_modeP == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_modeP, _len_modeP, _tmp_modeP, _len_modeP)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	_in_retval = combiner((const DecryptoInfo*)_in_secrets, _in_modeP);
+	_in_retval = combiner((const DecryptoInfo*)_tmp_secrets, _tmp_modeP);
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
 	}
 
 err:
-	if (_in_secrets) free(_in_secrets);
-	if (_in_modeP) free(_in_modeP);
 	return status;
 }
 
@@ -731,74 +527,18 @@ static sgx_status_t SGX_CDECL sgx_scalar_multi(void* pms)
 	}
 	sgx_status_t status = SGX_SUCCESS;
 	mpz_t* _tmp_k = __in_ms.ms_k;
-	size_t _len_k = sizeof(mpz_t);
-	mpz_t* _in_k = NULL;
 	const point* _tmp_p = __in_ms.ms_p;
-	size_t _len_p = sizeof(point);
-	point* _in_p = NULL;
 	const EC* _tmp_curve = __in_ms.ms_curve;
-	size_t _len_curve = sizeof(EC);
-	EC* _in_curve = NULL;
 	point* _in_retval;
 
-	CHECK_UNIQUE_POINTER(_tmp_k, _len_k);
-	CHECK_UNIQUE_POINTER(_tmp_p, _len_p);
-	CHECK_UNIQUE_POINTER(_tmp_curve, _len_curve);
 
-	//
-	// fence after pointer checks
-	//
-	sgx_lfence();
-
-	if (_tmp_k != NULL && _len_k != 0) {
-		_in_k = (mpz_t*)malloc(_len_k);
-		if (_in_k == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_k, _len_k, _tmp_k, _len_k)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_p != NULL && _len_p != 0) {
-		_in_p = (point*)malloc(_len_p);
-		if (_in_p == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_p, _len_p, _tmp_p, _len_p)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_curve != NULL && _len_curve != 0) {
-		_in_curve = (EC*)malloc(_len_curve);
-		if (_in_curve == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_curve, _len_curve, _tmp_curve, _len_curve)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	_in_retval = scalar_multi(_in_k, (const point*)_in_p, (const EC*)_in_curve);
+	_in_retval = scalar_multi(_tmp_k, (const point*)_tmp_p, (const EC*)_tmp_curve);
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
 	}
 
 err:
-	if (_in_k) free(_in_k);
-	if (_in_p) free(_in_p);
-	if (_in_curve) free(_in_curve);
 	return status;
 }
 
@@ -816,66 +556,17 @@ static sgx_status_t SGX_CDECL sgx_createPoint(void* pms)
 	}
 	sgx_status_t status = SGX_SUCCESS;
 	char* _tmp_x = __in_ms.ms_x;
-	size_t _len_x = sizeof(char);
-	char* _in_x = NULL;
 	char* _tmp_y = __in_ms.ms_y;
-	size_t _len_y = sizeof(char);
-	char* _in_y = NULL;
 	point* _in_retval;
 
-	CHECK_UNIQUE_POINTER(_tmp_x, _len_x);
-	CHECK_UNIQUE_POINTER(_tmp_y, _len_y);
 
-	//
-	// fence after pointer checks
-	//
-	sgx_lfence();
-
-	if (_tmp_x != NULL && _len_x != 0) {
-		if ( _len_x % sizeof(*_tmp_x) != 0)
-		{
-			status = SGX_ERROR_INVALID_PARAMETER;
-			goto err;
-		}
-		_in_x = (char*)malloc(_len_x);
-		if (_in_x == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_x, _len_x, _tmp_x, _len_x)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_y != NULL && _len_y != 0) {
-		if ( _len_y % sizeof(*_tmp_y) != 0)
-		{
-			status = SGX_ERROR_INVALID_PARAMETER;
-			goto err;
-		}
-		_in_y = (char*)malloc(_len_y);
-		if (_in_y == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_y, _len_y, _tmp_y, _len_y)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	_in_retval = createPoint(_in_x, _in_y);
+	_in_retval = createPoint(_tmp_x, _tmp_y);
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
 	}
 
 err:
-	if (_in_x) free(_in_x);
-	if (_in_y) free(_in_y);
 	return status;
 }
 
@@ -893,92 +584,82 @@ static sgx_status_t SGX_CDECL sgx_createEC(void* pms)
 	}
 	sgx_status_t status = SGX_SUCCESS;
 	char* _tmp_p = __in_ms.ms_p;
-	size_t _len_p = sizeof(char);
-	char* _in_p = NULL;
 	char* _tmp_n = __in_ms.ms_n;
-	size_t _len_n = sizeof(char);
-	char* _in_n = NULL;
 	point* _tmp_G = __in_ms.ms_G;
-	size_t _len_G = sizeof(point);
-	point* _in_G = NULL;
 	EC* _in_retval;
 
-	CHECK_UNIQUE_POINTER(_tmp_p, _len_p);
-	CHECK_UNIQUE_POINTER(_tmp_n, _len_n);
-	CHECK_UNIQUE_POINTER(_tmp_G, _len_G);
 
-	//
-	// fence after pointer checks
-	//
-	sgx_lfence();
-
-	if (_tmp_p != NULL && _len_p != 0) {
-		if ( _len_p % sizeof(*_tmp_p) != 0)
-		{
-			status = SGX_ERROR_INVALID_PARAMETER;
-			goto err;
-		}
-		_in_p = (char*)malloc(_len_p);
-		if (_in_p == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_p, _len_p, _tmp_p, _len_p)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_n != NULL && _len_n != 0) {
-		if ( _len_n % sizeof(*_tmp_n) != 0)
-		{
-			status = SGX_ERROR_INVALID_PARAMETER;
-			goto err;
-		}
-		_in_n = (char*)malloc(_len_n);
-		if (_in_n == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_n, _len_n, _tmp_n, _len_n)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	if (_tmp_G != NULL && _len_G != 0) {
-		_in_G = (point*)malloc(_len_G);
-		if (_in_G == NULL) {
-			status = SGX_ERROR_OUT_OF_MEMORY;
-			goto err;
-		}
-
-		if (memcpy_s(_in_G, _len_G, _tmp_G, _len_G)) {
-			status = SGX_ERROR_UNEXPECTED;
-			goto err;
-		}
-
-	}
-	_in_retval = createEC(_in_p, _in_n, _in_G, __in_ms.ms_a, __in_ms.ms_b, __in_ms.ms_h);
+	_in_retval = createEC(_tmp_p, _tmp_n, _tmp_G, __in_ms.ms_a, __in_ms.ms_b, __in_ms.ms_h);
 	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
 		status = SGX_ERROR_UNEXPECTED;
 		goto err;
 	}
 
 err:
-	if (_in_p) free(_in_p);
-	if (_in_n) free(_in_n);
-	if (_in_G) free(_in_G);
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_inverse_mod(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_inverse_mod_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_inverse_mod_t* ms = SGX_CAST(ms_inverse_mod_t*, pms);
+	ms_inverse_mod_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_inverse_mod_t), ms, sizeof(ms_inverse_mod_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	const mpz_t* _tmp_k = __in_ms.ms_k;
+	const mpz_t* _tmp_p = __in_ms.ms_p;
+	mpz_t* _in_retval;
+
+
+	_in_retval = inverse_mod((const mpz_t*)_tmp_k, (const mpz_t*)_tmp_p);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_hash_message(void* pms)
+{
+	CHECK_REF_POINTER(pms, sizeof(ms_hash_message_t));
+	//
+	// fence after pointer checks
+	//
+	sgx_lfence();
+	ms_hash_message_t* ms = SGX_CAST(ms_hash_message_t*, pms);
+	ms_hash_message_t __in_ms;
+	if (memcpy_s(&__in_ms, sizeof(ms_hash_message_t), ms, sizeof(ms_hash_message_t))) {
+		return SGX_ERROR_UNEXPECTED;
+	}
+	sgx_status_t status = SGX_SUCCESS;
+	const char* _tmp_message = __in_ms.ms_message;
+	const EC* _tmp_curve = __in_ms.ms_curve;
+	mpz_t* _in_retval;
+
+
+	_in_retval = hash_message((const char*)_tmp_message, __in_ms.ms_length, (const EC*)_tmp_curve);
+	if (memcpy_verw_s(&ms->ms_retval, sizeof(ms->ms_retval), &_in_retval, sizeof(_in_retval))) {
+		status = SGX_ERROR_UNEXPECTED;
+		goto err;
+	}
+
+err:
 	return status;
 }
 
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[11];
+	struct {void* ecall_addr; uint8_t is_priv; uint8_t is_switchless;} ecall_table[13];
 } g_ecall_table = {
-	11,
+	13,
 	{
 		{(void*)(uintptr_t)sgx_session_request, 0, 0},
 		{(void*)(uintptr_t)sgx_exchange_report, 0, 0},
@@ -991,20 +672,22 @@ SGX_EXTERNC const struct {
 		{(void*)(uintptr_t)sgx_scalar_multi, 0, 0},
 		{(void*)(uintptr_t)sgx_createPoint, 0, 0},
 		{(void*)(uintptr_t)sgx_createEC, 0, 0},
+		{(void*)(uintptr_t)sgx_inverse_mod, 0, 0},
+		{(void*)(uintptr_t)sgx_hash_message, 0, 0},
 	}
 };
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[5][11];
+	uint8_t entry_table[5][13];
 } g_dyn_entry_table = {
 	5,
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 	}
 };
 

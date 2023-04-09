@@ -42,12 +42,16 @@
 
 #define UNUSED(val) (void)(val)
 #define NODE_NUM    8
-#define THRESH      5
+#define THRESH      3
 #define MODE_P "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
 
 std::map<sgx_enclave_id_t, dh_session_t>g_src_session_info_map;
 
 static uint32_t e1_foo1_wrapper(ms_in_msg_exchange_t *ms, size_t param_lenth, char** resp_buffer, size_t* resp_length);
+
+point *BP;
+EC*    group;
+mpz_t  p, random_a;
 
 //Function pointer table containing the list of functions that the enclave exposes
 const struct {
@@ -368,17 +372,75 @@ static uint32_t e1_foo1_wrapper(ms_in_msg_exchange_t *ms,
     return SUCCESS;
 }
 
-SS* createZeroSecretSharings() {
-    point *BP = createPoint(
+void init() {
+    BP = createPoint(
     "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798", 
     "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
-    EC *group = createEC(
+    group = createEC(
     "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f", 
     "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", 
     BP, 0, 7, 1);
+    mpz_init_set_str(p, MODE_P, 16);
+}
+
+SS* createZeroSecretSharings(int factor) {
     mpz_t ZeroSecret, p;
     mpz_init_set_d(ZeroSecret, 0);
     mpz_init_set_str(p, MODE_P, 16);
-    SS *res = createSS(THRESH, NODE_NUM, &ZeroSecret, &p);
+    SS *res = createSS(factor*THRESH, NODE_NUM, &ZeroSecret, &p);
+    mpz_clear(ZeroSecret);
     return res;
+}
+
+SS* createRandomSecretSharings(int factor) {
+    mpz_t randomNumber2Secret;
+    mpz_init(randomNumber2Secret);
+    gmp_randstate_t state;
+    uint32_t val;
+    sgx_read_rand((unsigned char *) &val, 4);
+	gmp_randinit_default(state);
+	gmp_randseed_ui(state, val);
+    while (mpz_cmp_si(randomNumber2Secret, 0) <= 0 || mpz_cmp(randomNumber2Secret, p) >= 0)
+    {
+        mpz_urandomb(randomNumber2Secret, state, 256);
+    }
+    mpz_set(random_a, randomNumber2Secret);
+    SS *res = createSS(factor*THRESH, NODE_NUM, &randomNumber2Secret, &p);
+    mpz_clear(randomNumber2Secret);
+    return res;
+}
+
+mpz_t* DecryptoSS(SS *source, int factor) {
+    ocall_print_string("into into into\n");
+    DecryptoInfo *d = (DecryptoInfo *)malloc(sizeof(DecryptoInfo));
+    d->keyPartitions = source->keyPartitions;
+    d->t = factor*THRESH;
+    d->sub = (int*)malloc(sizeof(int)*factor*THRESH);
+    for (int i = 0; i < factor*THRESH; i++) {
+        d->sub[i] = i+1;
+    }
+    mpz_t * res = combiner(d, &p);
+    free(d->sub);
+    free(d);
+    return res;
+}
+
+point* DecryptoGA(mpz_t *source) {
+    point* r = scalar_multi(&random_a, BP, group);
+    return r;
+}
+
+point* getRxy(const mpz_t *u, const point *beta) {
+    mpz_t *un = inverse_mod(u, &p);
+    ocall_print_string(mpz_get_str(nullptr, 16, *un));
+    ocall_print_string("\n");
+    return scalar_multi(un, beta, group);
+}
+
+void mod(mpz_t *r) {
+    mpz_mod(*r, *r, p);
+}
+
+mpz_t* hash(const char *message, int len) {
+    return hash_message(message, len, group);
 }

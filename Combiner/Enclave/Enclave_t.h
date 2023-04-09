@@ -25,7 +25,14 @@ uint32_t test_create_session(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t d
 uint32_t test_enclave_to_enclave_call(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id);
 uint32_t test_message_exchange(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id);
 uint32_t test_close_session(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id);
-SS* createZeroSecretSharings(void);
+void init(void);
+SS* createZeroSecretSharings(int factor);
+SS* createRandomSecretSharings(int factor);
+mpz_t* DecryptoSS(SS* source, int factor);
+point* DecryptoGA(mpz_t* source);
+point* getRxy(const mpz_t* u, const point* beta);
+void mod(mpz_t* r);
+mpz_t* hash(const char* message, int len);
 uint32_t session_request(sgx_enclave_id_t src_enclave_id, sgx_dh_msg1_t* dh_msg1, uint32_t* session_id);
 uint32_t exchange_report(sgx_enclave_id_t src_enclave_id, sgx_dh_msg2_t* dh_msg2, sgx_dh_msg3_t* dh_msg3, uint32_t session_id);
 uint32_t generate_response(sgx_enclave_id_t src_enclave_id, secure_message_t* req_message, size_t req_message_size, size_t max_payload_size, secure_message_t* resp_message, size_t resp_message_size);
@@ -37,6 +44,8 @@ mpz_t* combiner(const DecryptoInfo* secrets, mpz_t* modeP);
 point* scalar_multi(mpz_t* k, const point* p, const EC* curve);
 point* createPoint(char* x, char* y);
 EC* createEC(char* p, char* n, point* G, int a, int b, int h);
+mpz_t* inverse_mod(const mpz_t* k, const mpz_t* p);
+mpz_t* hash_message(const char* message, int length, const EC* curve);
 
 sgx_status_t SGX_CDECL session_request_ocall(uint32_t* retval, sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id, sgx_dh_msg1_t* dh_msg1, uint32_t* session_id);
 sgx_status_t SGX_CDECL exchange_report_ocall(uint32_t* retval, sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id, sgx_dh_msg2_t* dh_msg2, sgx_dh_msg3_t* dh_msg3, uint32_t session_id);
