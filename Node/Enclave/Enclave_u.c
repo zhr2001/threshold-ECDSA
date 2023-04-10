@@ -25,6 +25,13 @@ typedef struct ms_test_close_session_t {
 	sgx_enclave_id_t ms_dest_enclave_id;
 } ms_test_close_session_t;
 
+typedef struct ms_generate_sign_sharing_t {
+	mpz_t* ms_retval;
+	char* ms_s;
+	int ms_len;
+	mpz_t* ms_private_key;
+} ms_generate_sign_sharing_t;
+
 typedef struct ms_session_request_t {
 	uint32_t ms_retval;
 	sgx_enclave_id_t ms_src_enclave_id;
@@ -269,6 +276,18 @@ sgx_status_t Enclave_test_close_session(sgx_enclave_id_t eid, uint32_t* retval, 
 	return status;
 }
 
+sgx_status_t Enclave_generate_sign_sharing(sgx_enclave_id_t eid, mpz_t** retval, char* s, int len, mpz_t* private_key)
+{
+	sgx_status_t status;
+	ms_generate_sign_sharing_t ms;
+	ms.ms_s = s;
+	ms.ms_len = len;
+	ms.ms_private_key = private_key;
+	status = sgx_ecall(eid, 4, &ocall_table_Enclave, &ms);
+	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
+	return status;
+}
+
 sgx_status_t Enclave_session_request(sgx_enclave_id_t eid, uint32_t* retval, sgx_enclave_id_t src_enclave_id, sgx_dh_msg1_t* dh_msg1, uint32_t* session_id)
 {
 	sgx_status_t status;
@@ -276,7 +295,7 @@ sgx_status_t Enclave_session_request(sgx_enclave_id_t eid, uint32_t* retval, sgx
 	ms.ms_src_enclave_id = src_enclave_id;
 	ms.ms_dh_msg1 = dh_msg1;
 	ms.ms_session_id = session_id;
-	status = sgx_ecall(eid, 4, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 5, &ocall_table_Enclave, &ms);
 	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
 	return status;
 }
@@ -289,7 +308,7 @@ sgx_status_t Enclave_exchange_report(sgx_enclave_id_t eid, uint32_t* retval, sgx
 	ms.ms_dh_msg2 = dh_msg2;
 	ms.ms_dh_msg3 = dh_msg3;
 	ms.ms_session_id = session_id;
-	status = sgx_ecall(eid, 5, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 6, &ocall_table_Enclave, &ms);
 	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
 	return status;
 }
@@ -304,7 +323,7 @@ sgx_status_t Enclave_generate_response(sgx_enclave_id_t eid, uint32_t* retval, s
 	ms.ms_max_payload_size = max_payload_size;
 	ms.ms_resp_message = resp_message;
 	ms.ms_resp_message_size = resp_message_size;
-	status = sgx_ecall(eid, 6, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 7, &ocall_table_Enclave, &ms);
 	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
 	return status;
 }
@@ -314,7 +333,7 @@ sgx_status_t Enclave_end_session(sgx_enclave_id_t eid, uint32_t* retval, sgx_enc
 	sgx_status_t status;
 	ms_end_session_t ms;
 	ms.ms_src_enclave_id = src_enclave_id;
-	status = sgx_ecall(eid, 7, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 8, &ocall_table_Enclave, &ms);
 	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
 	return status;
 }
@@ -325,7 +344,7 @@ sgx_status_t Enclave_createPoint(sgx_enclave_id_t eid, point** retval, char* Sx,
 	ms_createPoint_t ms;
 	ms.ms_Sx = Sx;
 	ms.ms_Sy = Sy;
-	status = sgx_ecall(eid, 8, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 9, &ocall_table_Enclave, &ms);
 	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
 	return status;
 }

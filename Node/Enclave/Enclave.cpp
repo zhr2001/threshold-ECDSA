@@ -365,3 +365,40 @@ static uint32_t e1_foo1_wrapper(ms_in_msg_exchange_t *ms,
     return SUCCESS;
 }
 
+mpz_t* generate_sign_sharing(char *s, int len, mpz_t *private_key) {
+    char ss[4][200];
+    int cnt = 0, j = 0;
+    for (int i = 0; i < len; i++) {
+        if (s[i] == ' ') {
+            cnt += 1;
+            j = 0;
+            continue;
+        }
+        ss[cnt][j] = s[i]; 
+        j ++;
+    }
+    char *k = ss[0];
+    char *e = ss[1];
+    char *r = ss[2];
+    char *c = ss[3];
+    mpz_t K, E, R, C;
+    mpz_init_set_str(K, k, 16);
+    mpz_init_set_str(E, e, 16);
+    mpz_init_set_str(R, r, 16);
+    mpz_init_set_str(C, c, 16);
+    mpz_t *res = new mpz_t[1];
+    mpz_init_set(*res, *private_key);
+    mpz_mul(*res, *res, R);
+    mpz_add(*res, *res, E);
+    mpz_mul(*res, *res, K);
+    mpz_add(*res, *res, C);
+    mpz_t p;
+    mpz_init_set_str(p, "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f", 16);
+    mpz_mod(*res, *res, p);
+    mpz_clear(p);
+    mpz_clear(K);
+    mpz_clear(E);
+    mpz_clear(R);
+    mpz_clear(C);
+    return res;
+}

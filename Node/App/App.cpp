@@ -277,8 +277,22 @@ sleep2:
     str = (char*)shmat(shmid, (void*)0, 0);
 
     printf("[TEST IPC## %s] Receiving from Enclave1: %s\n", argv[1], str);
+    mpz_t *sign;
+    Enclave_generate_sign_sharing(enclave_id, &sign, str, strlen(str), &privateKeySS);
     shmdt(str);
     shmctl(shmid, IPC_RMID, NULL);
+    char *sss = mpz_get_str(nullptr, 16, *sign);
+    printf("[TEST IPC## %s] Generate sign from Enclave1: %s\n", argv[1], sss);  
+
+    key = ftok("../..", 19*atoi(argv[1]));
+    int shmid_msg3 = shmget(key, 512, 0666|IPC_CREAT);
+    printf("[TEST IPC] Sending to Combiner Enclave: Sign Sharing from Enclave1\n");
+    char *t = (char*)shmat(shmid_msg3, (void*)0, 0);
+    strncpy(t, sss, strlen(sss));
+
+    sleep(2);
+
+    shmctl(key, IPC_RMID, nullptr);
 
     sgx_destroy_enclave(enclave_id);
 

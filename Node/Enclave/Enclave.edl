@@ -40,6 +40,7 @@ enclave {
             public uint32_t test_enclave_to_enclave_call(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id);
             public uint32_t test_message_exchange(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id);
             public uint32_t test_close_session(sgx_enclave_id_t src_enclave_id, sgx_enclave_id_t dest_enclave_id);
+            public mpz_t* generate_sign_sharing([user_check] char *s, int len, [user_check] mpz_t *private_key);
     };
 
 };

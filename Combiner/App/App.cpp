@@ -173,16 +173,23 @@ void* sign_thread_function(void *args) {
     t[strlen(s->r)] = ' ';
     t = t+strlen(s->r)+1;
 
-    S = mpz_get_str(nullptr, 16, s->c->keyPartitions[i]);
+    S = mpz_get_str(nullptr, 16, s->c->keyPartitions[i-1]);
     strncpy(t, S, strlen(S));
 
     printf("%d Secret sharing: %s\n", i, c_str);
     shmdt(c_str);
 
-    sleep(2);
+    sleep(1);
+    key = ftok("../..", 19*i);
+    int shmid = shmget(key, 512, 0666 | IPC_CREAT);
+    str = (char*)shmat(shmid, (void*)0, 0);
+
+    printf("[TEST IPC## %d] Receiving sign part from Node: %s\n", i, str);
+    shmdt(str);
 
     shmctl(shmid_msg1, IPC_RMID, NULL);
     shmctl(shmid_msg3, IPC_RMID, NULL);
+    shmctl(shmid, IPC_RMID, NULL);
     pthread_mutex_unlock(&mutex);
     return nullptr;
 }
