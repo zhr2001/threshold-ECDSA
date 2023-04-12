@@ -32,6 +32,8 @@ sgx_enclave_id_t enclave_id;
 
 pthread_mutex_t mutex;
 
+mpz_t * signature_part;
+
 #define ENCLAVE_SETUP_NAME "libenclavesetup.so"
 
 typedef struct thread_para {
@@ -185,11 +187,13 @@ void* sign_thread_function(void *args) {
     str = (char*)shmat(shmid, (void*)0, 0);
 
     printf("[TEST IPC## %d] Receiving sign part from Node: %s\n", i, str);
+    mpz_init_set_str(signature_part[i-1], str, 16);
     shmdt(str);
 
     shmctl(shmid_msg1, IPC_RMID, NULL);
     shmctl(shmid_msg3, IPC_RMID, NULL);
     shmctl(shmid, IPC_RMID, NULL);
+    cnt += 1;
     pthread_mutex_unlock(&mutex);
     return nullptr;
 }
@@ -246,6 +250,8 @@ int _tmain(int argc, TCHAR* argv[]) {
 
     while (cnt < NODE_NUM);
 
+    cnt = 0;
+
     mpz_t* u;
     mpz_t* A;
     point* beta;
@@ -268,26 +274,23 @@ int _tmain(int argc, TCHAR* argv[]) {
         mpz_init_set(kaplusb->keyPartitions[i], t);
         mpz_clear(t);
     }
-    if (SGX_SUCCESS == Enclave_DecryptoSS(enclave_id, &u, kaplusb, 2)) {
-        printf("SB!\n");
+    if (SGX_SUCCESS != Enclave_DecryptoSS(enclave_id, &u, kaplusb, 2)) {
+        exit(-1);
     }
     Enclave_DecryptoGA(enclave_id, &beta, A);
-    printf("SB!\n");
     point *R;
     Enclave_getRxy(enclave_id, &R, u, beta);
-    printf("SB!\n");
     mpz_t r;
     mpz_init_set(r, R->x);
-    printf("SB!\n");
     Enclave_mod(enclave_id, &r);
-    printf("SB!\n");
     s_para s[NODE_NUM];
     mpz_t *e;
     Enclave_hash(enclave_id, &e, MESSAGE, strlen(MESSAGE));
-    printf("SB!\n");
     char *e_res = mpz_get_str(nullptr, 16, *e);
     printf("hash info : %s \n", e_res);
     char *r_res = mpz_get_str(nullptr, 16, r);
+
+    signature_part = (mpz_t *)malloc(NODE_NUM * sizeof(mpz_t));
 
     for (int i = 0; i < NODE_NUM; i++) {
         s[i].i = i+1;
@@ -308,6 +311,16 @@ int _tmain(int argc, TCHAR* argv[]) {
     {
         pthread_join(tidp[i], NULL);  //problem in this line
     }
+
+    while (cnt < NODE_NUM) ;
+    mpz_t *real_sign;
+    SS *real_s = (SS*)malloc(sizeof(SS));
+    real_s->keyPartitions = signature_part;
+    real_s->n = NODE_NUM;
+    if (Enclave_DecryptoSS(enclave_id, &real_sign, real_s, 2) != SGX_SUCCESS) {
+        exit(-1);
+    }
+    printf("COMBINER GET SIGNATURE:(%s,%s)\n", r_res, mpz_get_str(nullptr, 16, *real_sign));
 
     sgx_destroy_enclave(enclave_id);
 
