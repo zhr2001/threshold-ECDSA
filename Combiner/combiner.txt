@@ -1,140 +1,70 @@
 [TEST IPC] Receiving from Enclave1: ffff1111
-[SetUp 4] Get sequence: 4
-[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
-4 Secret sharing: 37c3404e6fb557e6496c8a9490e6e35321b72a4f89db554ad1fb410a887bc759
-[START] Testing create session between SetUp Enclave and Node Enclave
-[SetUp] [ECALL] create_session()
-[SetUp] [ECALL] Initializing the session as session initiator...
-[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
-[OCALL IPC] SessionID and message1 should be ready
-[OCALL IPC] Retriving SessionID from shared memory
-[OCALL IPC] Retriving message1 from shared memory
-[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
-[OCALL IPC] Passing message2 to shared memory for Enclave2
-[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
-[OCALL IPC] Message3 should be ready
-[OCALL IPC] Retrieving message3 from shared memory
-[SetUp] [ECALL] Processing message3 obtained from Enclave3
-[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
-[END 4] Secure Channel Establishment between Setup and Node successful !!!
-[SetUp 5] Get sequence: 5
-[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
-5 Secret sharing: 43a931c49e16c163376ce8957bdd2d84141865ab973a0a3d60f240945a6912c6
-[START] Testing create session between SetUp Enclave and Node Enclave
-[SetUp] [ECALL] create_session()
-[SetUp] [ECALL] Initializing the session as session initiator...
-[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
-[OCALL IPC] SessionID and message1 should be ready
-[OCALL IPC] Retriving SessionID from shared memory
-[OCALL IPC] Retriving message1 from shared memory
-[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
-[OCALL IPC] Passing message2 to shared memory for Enclave2
-[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
-[OCALL IPC] Message3 should be ready
-[OCALL IPC] Retrieving message3 from shared memory
-[SetUp] [ECALL] Processing message3 obtained from Enclave3
-[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
-[END 5] Secure Channel Establishment between Setup and Node successful !!!
-[SetUp 6] Get sequence: 6
-[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
-6 Secret sharing: cebdfd623a4032ae4a15c4bb1cb87ea6b0db0157b5c24bd6474c863a25dc19ba
-[START] Testing create session between SetUp Enclave and Node Enclave
-[SetUp] [ECALL] create_session()
-[SetUp] [ECALL] Initializing the session as session initiator...
-[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
-[OCALL IPC] SessionID and message1 should be ready
-[OCALL IPC] Retriving SessionID from shared memory
-[OCALL IPC] Retriving message1 from shared memory
-[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
-[OCALL IPC] Passing message2 to shared memory for Enclave2
-[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
-[OCALL IPC] Message3 should be ready
-[OCALL IPC] Retrieving message3 from shared memory
-[SetUp] [ECALL] Processing message3 obtained from Enclave3
-[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
-[END 6] Secure Channel Establishment between Setup and Node successful !!!
-[SetUp 7] Get sequence: 7
-[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
-7 Secret sharing: d901a3274431abc781671f057378d6baf7fefd53e5741a15850a11fcead4e006
-[START] Testing create session between SetUp Enclave and Node Enclave
-[SetUp] [ECALL] create_session()
-[SetUp] [ECALL] Initializing the session as session initiator...
-[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
-[OCALL IPC] SessionID and message1 should be ready
-[OCALL IPC] Retriving SessionID from shared memory
-[OCALL IPC] Retriving message1 from shared memory
-[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
-[OCALL IPC] Passing message2 to shared memory for Enclave2
-[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
-[OCALL IPC] Message3 should be ready
-[OCALL IPC] Retrieving message3 from shared memory
-[SetUp] [ECALL] Processing message3 obtained from Enclave3
-[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
-[END 7] Secure Channel Establishment between Setup and Node successful !!!
-[SetUp 8] Get sequence: 8
-[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
-8 Secret sharing: 62742313bbeb2caedd60f774801e35c0e98459a0264f74fb1a2ae3dca95365aa
-[START] Testing create session between SetUp Enclave and Node Enclave
-[SetUp] [ECALL] create_session()
-[SetUp] [ECALL] Initializing the session as session initiator...
-[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
-[OCALL IPC] SessionID and message1 should be ready
-[OCALL IPC] Retriving SessionID from shared memory
-[OCALL IPC] Retriving message1 from shared memory
-[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
-[OCALL IPC] Passing message2 to shared memory for Enclave2
-[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
-[OCALL IPC] Message3 should be ready
-[OCALL IPC] Retrieving message3 from shared memory
-[SetUp] [ECALL] Processing message3 obtained from Enclave3
-[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
-[END 8] Secure Channel Establishment between Setup and Node successful !!!
-[SetUp 3] Get sequence: 3
-[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
-3 Secret sharing: ab0c28ffaf1bf6378014aab85bd5a013d9b74f438da62cfe9a67879cb0143773
-[START] Testing create session between SetUp Enclave and Node Enclave
-[SetUp] [ECALL] create_session()
-[SetUp] [ECALL] Initializing the session as session initiator...
-[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
-[OCALL IPC] SessionID and message1 should be ready
-[OCALL IPC] Retriving SessionID from shared memory
-[OCALL IPC] Retriving message1 from shared memory
-[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
-[OCALL IPC] Passing message2 to shared memory for Enclave2
-[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
-[OCALL IPC] Message3 should be ready
-[OCALL IPC] Retrieving message3 from shared memory
-[SetUp] [ECALL] Processing message3 obtained from Enclave3
-[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
-[END 3] Secure Channel Establishment between Setup and Node successful !!!
 [SetUp 2] Get sequence: 2
 [TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
-2 Secret sharing: 9d83ebd85c4a9c56db654900dca963c63c18d487a29a9158ba37144bd13266e5
-[START] Testing create session between SetUp Enclave and Node Enclave
-[SetUp] [ECALL] create_session()
-[SetUp] [ECALL] Initializing the session as session initiator...
-[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
-[OCALL IPC] SessionID and message1 should be ready
-[OCALL IPC] Retriving SessionID from shared memory
-[OCALL IPC] Retriving message1 from shared memory
-[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
-[OCALL IPC] Passing message2 to shared memory for Enclave2
-[OCALL IPC] Waiting for Enclave2 to process message2 and generate message3...
-[OCALL IPC] Message3 should be ready
-[OCALL IPC] Retrieving message3 from shared memory
-[SetUp] [ECALL] Processing message3 obtained from Enclave3
-[SetUp] [ECALL] Verifying Encalve2(Responder)'s trust
-[END 2] Secure Channel Establishment between Setup and Node successful !!!
+2 Secret sharing: e5ee664d011aa6e7139480fd13b2c763515985fa8c5f8f9d703bb11febb0a8b2
+[SetUp 3] Get sequence: 3
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+3 Secret sharing: 1ae94830ac68a05b8285a825802a95be5be05829c0b1c53410a18a97c41c7e7
+[SetUp 4] Get sequence: 4
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+4 Secret sharing: 389f6a18c53177966e97ef616df6df83c1f25811dcb3d6f877a38a2cc94e1162
+[SetUp 5] Get sequence: 5
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+5 Secret sharing: 8ac0e70e305b6f9936e33f9a558f69dae5f67da84e59bf8d140805aad2d588f4
+[SetUp 6] Get sequence: 6
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+6 Secret sharing: f8130b634c44720e110a4b2d0ecc486151ca7645f0fcd61116378b2398d82e9d
+[SetUp 7] Get sequence: 7
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+7 Secret sharing: 8095d71818ec7ef4fd0d121999ad7b17056e41eac49d1a847e321a981b56062e
+[SetUp 8] Get sequence: 8
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+8 Secret sharing: 24494a2c9653964dfaeb945ff63301fc00e1e096c93a8ce74bf7b4075a4f0bd6
 [SetUp 1] Get sequence: 1
 [TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
-1 Secret sharing: f2a88d877414a445b5e656e13622e6a48dbba1bc8b882593169e717ebd655af
-[START] Testing create session between SetUp Enclave and Node Enclave
-[SetUp] [ECALL] create_session()
-[SetUp] [ECALL] Initializing the session as session initiator...
-[OCALL IPC] Waiting for Enclave2 to generate SessionID and message1...
-[OCALL IPC] SessionID and message1 should be ready
-[OCALL IPC] Retriving SessionID from shared memory
-[OCALL IPC] Retriving message1 from shared memory
-[SetUp] [ECALL] Processing message1 obtained from Enclave2 and generate message2
-[OCALL IPC] Passing message2 to shared memory for Enclave2
-[OCALL IPC] Waiting for Enclav
+1 Secret sharing: e55edf76a82dce3a80dc62d1a107399a04c4d979adb130d705385392179abb65
+[SetUp] into into into
+[SetUp] dfacc05189424a48c5210564b258b55f6f332d108a796f2cf52ae14d049a0c27[SetUp] 
+hash info : 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 
+into sign 
+[SetUp 1] Get sequence: 1
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+1 Secret sharing: eb90e1161496ce922ee0b8b0ea398ba91dccba188587db2f128d7de79e98673c 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 cb5b2729e0ec1fe92a4814194bc894653af5d41cab24b65db1b56a37f15f15ec
+[TEST IPC## 1] Receiving sign part from Node: cb5b2729e0ec1fe92a4814194bc894653af5d41cab24b65db1b56a37f15f15ec
+into sign 
+[SetUp 2] Get sequence: 2
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+2 Secret sharing: 8f01df730fc7f60732943803b44e8579da8985a1cd3ab936b9c242c21567a8e6 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 3bc9b117ccb6c2c058a22e1ab779e8bf5d9ea50b0ccdb9dc89edc47d16f736f4
+[TEST IPC## 2] Receiving sign part from Node: 3bc9b117ccb6c2c058a22e1ab779e8bf5d9ea50b0ccdb9dc89edc47d16f736f4
+into sign 
+[SetUp 3] Get sequence: 3
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+3 Secret sharing: 87bf4c2f1507c6371d763e8409635d74f06a6652e2904cf250c96b6dd624492d 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 d8324c15943f012224632932781a6775089226d2a2c4e5a60545712a94a56cf8
+[TEST IPC## 3] Receiving sign part from Node: d8324c15943f012224632932781a6775089226d2a2c4e5a60545712a94a56cf8
+into sign 
+[SetUp 4] Get sequence: 4
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+4 Secret sharing: d5c9274a24563f21ef86cc31e978139a5f6f5c2bc5889661d7a2f7eae0ce4811 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 310d3da085846c71584674d4bee0aa87cfb4275826ec28ff69b840257a4b3b67
+[TEST IPC## 4] Receiving sign part from Node: 310d3da085846c71584674d4bee0aa87cfb4275826ec28ff69b840257a4b3b67
+into sign 
+[SetUp 5] Get sequence: 5
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+5 Secret sharing: 791f70c43db360c7a8c5e10d548ca7ea2798672c762395854e4ee83a3565a963 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 95e532decd4a8ccf89187d09a529ead64084141ac384438dc33316d9869569f5
+[TEST IPC## 5] Receiving sign part from Node: 95e532decd4a8ccf89187d09a529ead64084141ac384438dc33316d9869569f5
+into sign 
+[SetUp 6] Get sequence: 6
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+6 Secret sharing: 71c2289d611f2b2849337d164aa11a6448e58754f4614a5cb4cd3c5ad3ea6952 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 cad81116d8bc5f15ae6112bb18706f5de86c7ff147738199e0259847e9c31403
+[TEST IPC## 6] Receiving sign part from Node: cad81116d8bc5f15ae6112bb18706f5de86c7ff147738199e0259847e9c31403
+into sign 
+[SetUp 7] Get sequence: 7
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+7 Secret sharing: bfb14ed58e999e43d0cfa04ccbb56b08c356bca54041b4e80b1df44cbc5c87de 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 be17c626b70fd2ccbb0dd402c641fc7d5b12a8c75a8c78544e13cd09086c866a
+[TEST IPC## 7] Receiving sign part from Node: be17c626b70fd2ccbb0dd402c641fc7d5b12a8c75a8c78544e13cd09086c866a
+into sign 
+[SetUp 8] Get sequence: 8
+[TEST IPC] Sending to Node Enclave: Secret Sharing from Enclave1
+8 Secret sharing: 62ece36cc622ba1a3f9a4ab0d7c999d796ec071d59c4d52751411010eebc08d8 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 3d6b18fb7b294826361c94780836433638a5fd5ab1d4c2195627cb543e4a342c
+[TEST IPC## 8] Receiving sign part from Node: 3d6b18fb7b294826361c94780836433638a5fd5ab1d4c2195627cb543e4a342c
+[SetUp] into into into
+COMBINER GET SIGNATURE:(fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9,0)

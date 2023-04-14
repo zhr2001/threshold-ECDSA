@@ -1,0 +1,10 @@
+[Node 8] Get sequence: 8
+[TEST IPC 8] Receiving from Enclave1: cf19d462a46ff68769bd442abb2e8673c11be39e80841ee76c1f83d22e29b012 66ec59aa5efb72849c299fc0bdad160010da7ce6c9fc2d4cc289ad37db1c34f1 816ccda61ddcf30368a3e2f3238a16af3ee72e05833f4c1071461f8e34d440f7
+Get privateKey SS: cf19d462a46ff68769bd442abb2e8673c11be39e80841ee76c1f83d22e29b012
+[Node 8] Get sequence: 8
+[TEST IPC 8] Receiving from Enclave1: 24494a2c9653964dfaeb945ff63301fc00e1e096c93a8ce74bf7b4075a4f0bd6
+Now the privateKeyss = f3631e8f3ac38cd564a8d88ab161886fc1fdc43549beabceb81737d98878bbe8
+[Node## 8] Get sequence: 8
+[TEST IPC## 8] Receiving from Enclave1: 62ece36cc622ba1a3f9a4ab0d7c999d796ec071d59c4d52751411010eebc08d8 90cc1825a393276e41140cffdd3791bdd95200c3d9cbd8bb159c313a14c99161 fa14ef3bd8a80e6c8f270e8affc5c1b471cc0b4a4f56b26fda0696ed38cdc4e9 3d6b18fb7b294826361c94780836433638a5fd5ab1d4c2195627cb543e4a342c
+[TEST IPC## 8] Generate sign from Enclave1: 3d6b18fb7b294826361c94780836433638a5fd5ab1d4c2195627cb543e4a342c
+[TEST IPC] Sending to Combiner Enclave: Sign Sharing from Enclave1
